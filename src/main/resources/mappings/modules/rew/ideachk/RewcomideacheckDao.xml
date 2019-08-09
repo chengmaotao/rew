@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.ideachk.dao.RewcomideacheckDao">
+    
+	<sql id="rewcomideacheckColumns">
+		a.id AS "id",
+		p.projectid AS "projectid",
+		p.currentYear as "currentYear",
+		a.isagree AS "isagree",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate"
+	</sql>
+	
+	<sql id="rewcomideacheckJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.ideachk.entity.Rewcomideacheck">
+		SELECT 
+			<include refid="rewcomideacheckColumns"/>
+		FROM rewcomideacheck a
+		<include refid="rewcomideacheckJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.ideachk.entity.Rewcomideacheck">
+		SELECT 
+			<include refid="rewcomideacheckColumns"/>
+		    ,g.groupName as "groupName"
+			,c.categoryName as "categoryName"
+			,ri.recomidea as "recomidea"
+			,t.scope as "scope"
+		FROM rewproject p 
+		left join rewcomideacheck a on a.projectId = p.projectId
+		<if test="!isGlyRole">
+			and a.create_by=#{currentUser.id}
+		</if>
+		left join rewrecomidea ri on ri.projectId = p.projectId
+		left join rewgroup g on g.id = p.groupId
+		left join rewcategory c on c.id = p.categoryId
+        left join (select  a.projectId as "projectId",
+							ROUND((avg(a.KPIWeight1) +
+							AVG(a.KPIWeight2) + 
+							AVG(a.KPIWeight3) + 
+							AVG(a.KPIWeight4) + 
+							AVG(a.KPIWeight5)),2) as "scope"
+							from rewprojectscope a group by a.projectId
+					)t on t.projectId = p.projectId 
+
+		<where>
+			<if test="projectid != null and projectid != ''">
+				p.projectId = #{projectid}
+			</if>
+			
+			<if test="!isGlyRole">
+				and p.groupId = #{currentUser.groupId}
+			</if>
+			<if test="currentYear != null and currentYear != ''">
+				and p.currentYear = #{currentYear}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY p.groupId,ri.recomidea,t.scope DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.ideachk.entity.Rewcomideacheck">
+		SELECT 
+			<include refid="rewcomideacheckColumns"/>
+		FROM rewcomideacheck a
+		<include refid="rewcomideacheckJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rewcomideacheck(
+			projectid,
+			isagree,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{projectid},
+			#{isagree},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewcomideacheck SET 	
+			projectid = #{projectid},
+			isagree = #{isagree},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewcomideacheck
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 按照项目分组， 查看每个项目的 投票数 -->
+	<select id="selectCountNumByProject" resultType="com.zkr.rew.ideachk.entity.Rewcomideacheck" parameterType="com.thinkgem.jeesite.modules.sys.entity.User">
+		select
+			 a.projectId as "projectid", 
+			 count(a.projectId) as "num"  
+		from rewcomideacheck a  
+		join rewproject p on p.projectId = a.projectId 
+		where a.isAgree = '1' 
+
+		and p.groupId = #{groupId}
+        and p.currentYear = #{currentYear}
+	   GROUP BY a.projectId
+	</select>
+	
+	<update id="deleteByProject" parameterType="com.zkr.rew.dict.entity.Rewproject">
+		DELETE FROM rewcomideacheck
+		WHERE projectid = #{projectid}
+	</update>
+	
+	
+</mapper>

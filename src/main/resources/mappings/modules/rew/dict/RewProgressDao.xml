@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.dict.dao.RewProgressDao">
+    
+	<sql id="rewProgressColumns">
+		a.progress AS "progress"
+	</sql>
+	
+	<sql id="rewProgressJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.dict.entity.RewProgress">
+		SELECT 
+			<include refid="rewProgressColumns"/>
+		FROM rew_progress a
+		<include refid="rewProgressJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.dict.entity.RewProgress">
+		SELECT 
+			<include refid="rewProgressColumns"/>
+		FROM rew_progress a
+		<include refid="rewProgressJoins"/>
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.dict.entity.RewProgress">
+		SELECT 
+			<include refid="rewProgressColumns"/>
+		FROM rew_progress a
+		<include refid="rewProgressJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rew_progress(
+			progress
+		) VALUES (
+			#{progress}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rew_progress SET 	
+			progress = #{progress}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rew_progress
+		WHERE id = #{id}
+	</update>
+	
+	
+		<!-- 获得项目流程 -->
+	<select id="selectprogerss" resultType="java.lang.String">
+		select progress from rew_progress
+	</select>
+	
+		<!-- 更新项目流程 -->
+	<update id="saveprogerss" parameterType="java.lang.String">
+		update rew_progress  SET progress = #{progress}
+	</update>
+</mapper>

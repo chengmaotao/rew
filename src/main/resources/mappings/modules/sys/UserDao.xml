@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.sys.dao.UserDao">
+
+    <sql id="userColumns">
+    	a.id,
+    	a.login_name,
+    	a.password,
+		a.name,
+		a.mobile,
+		a.login_ip,
+		a.login_date,
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag,
+    	a.groupId as "groupId",
+    	a.iscs,
+    	a.isfs
+    	
+    </sql>
+    
+    <sql id="userJoins">
+
+    </sql>
+	
+	<!-- 根据编号获得用户 -->
+	<select id="get" resultType="User">
+		SELECT
+			<include refid="userColumns"/>
+		FROM sys_user a
+		<include refid="userJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 根据登录名查询用户 -->
+	<select id="getByLoginName" resultType="User" parameterType="User">
+		SELECT
+			<include refid="userColumns"/>
+		FROM sys_user a
+		<include refid="userJoins"/>
+		WHERE a.login_name = #{loginName} AND a.del_flag = #{DEL_FLAG_NORMAL}
+	</select>
+	
+	<!-- 分页查询用户信息 -->
+	<select id="findList" resultType="User">
+		SELECT
+			<include refid="userColumns"/>
+		FROM sys_user a
+		<include refid="userJoins"/>
+		<if test="role != null and role.id != null and role.id != ''">
+			JOIN sys_user_role ur ON ur.user_id = a.id AND ur.role_id = #{role.id}
+		</if>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		
+		<!-- 如果不是超级管理员，则不显示超级管理员用户 -->
+		<if test="!currentUser.admin">
+			AND a.id != '1'
+		</if>
+		<if test="isfs != null and isfs !=''">
+			AND a.isfs = #{isfs}
+		</if>
+		<if test="iscs != null and iscs !=''">
+			AND a.iscs = #{iscs}
+		</if>	
+		
+		<if test="loginName != null and loginName != ''">
+			AND a.login_name like 
+					<if test="dbName == 'oracle'">'%'||#{loginName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{loginName}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{loginName}, '%')</if>
+		</if>
+		<if test="name != null and name != ''">
+			AND a.name like 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{name}, '%')</if>
+		</if>
+		   and a.currentYear = #{currentYear}
+
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.groupId,a.name
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<!-- 查询全部用户 -->
+	<select id="findAllList" resultType="User">
+		SELECT
+			<include refid="userColumns"/>
+		FROM sys_user a
+		<include refid="userJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		ORDER BY a.groupId,a.name
+	</select>
+	
+	<!-- 查询全部用户数目 -->
+	<select id="findAllCount" resultType="long">
+		SELECT
+			COUNT(1)
+		FROM sys_user a
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+	</select>
+	
+	<!-- 插入用户 -->
+	<insert id="insert">
+		INSERT INTO sys_user(
+			id, 
+			login_name, 
+			password, 
+			name, 
+			mobile, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag,
+		    groupId,
+    	    currentYear,
+    	    iscs,
+    	    isfs
+
+		) VALUES (
+			#{id},  
+			#{loginName}, 
+			#{password}, 
+			#{name}, 
+			#{mobile}, 
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag},
+			#{groupId},
+			#{currentYear},
+			#{iscs},
+			#{isfs}
+		)
+	</insert>
+	
+	<!-- 更新用户 -->
+	<update id="update">
+		UPDATE sys_user SET 
+			login_name = #{loginName}, 
+			password = #{password}, 
+			name = #{name},  
+			mobile = #{mobile}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks},
+			groupId = #{groupId},
+			currentYear = #{currentYear},
+			iscs = #{iscs},
+			isfs = #{isfs}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 删除用户和角色关联表数据 -->
+	<delete id="deleteUserRole">
+		DELETE FROM sys_user_role WHERE user_id = #{id}
+	</delete>
+	
+	<!-- 插入用户和角色关联表数据 -->
+	<insert id="insertUserRole">
+		INSERT INTO sys_user_role(user_id, role_id)
+		<foreach collection="roleList" item="role" separator=" union all ">
+			SELECT #{id}, #{role.id}
+			<if test="dbName != 'mssql'">
+			FROM dual
+			</if>
+		</foreach>
+	</insert>
+	
+	<!-- 更新用户信息  -->
+	<update id="updateUserInfo">
+		UPDATE sys_user SET 
+			mobile = #{mobile}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks},
+			groupId = #{groupId},
+			iscs = #{iscs},
+			isfs = #{isfs}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 更新用户密码 -->
+	<update id="updatePasswordById">
+		UPDATE sys_user SET 
+			password = #{password} 
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 更新登录信息，如登录IP、登录时间 -->
+	<update id="updateLoginInfo">
+		UPDATE sys_user SET 
+			login_ip = #{loginIp}, 
+			login_Date = #{loginDate} 
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 逻辑删除用户 -->
+	<update id="delete">
+	 	UPDATE sys_user SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id} 
+		
+		<!-- delete from sys_user WHERE id = #{id} -->
+	</update>
+	
+	
+	<!-- 根据用户ID 获得角色列表 -->
+	<select id="selectRoleListByUserId" resultType="com.thinkgem.jeesite.modules.sys.entity.Role" parameterType="java.lang.String">
+		SELECT a.id,a.name from sys_role a join sys_user_role ur on a.id = ur.role_id join sys_user u on u.id = ur.user_id where u.id= #{id}
+	
+	</select>
+	
+	<!-- 根据 User  获得该User所在组下有多少个用户   初审 -->
+	<select id="selectcsUsersByGroup" resultType="User" parameterType="User">
+		select distinct a.* 
+		  from  sys_user a 
+		  join sys_user_role ur on a.id=ur.user_id
+		 where a.del_flag = '0' 
+		    and a.id != '1'
+		    and ur.role_id in('7428592f045342109b9eafb6113f2c43','ab05186bd538401587b2d9c4d4f37977','daa362d072354d55b72529904dedd663','4663512fb8f245db953b2ed6f992e24a')  <!-- 评审专家，主审专家，专业组长,主审专家和专业组组长 -->
+		    and a.groupId = #{groupId}
+    	    and a.currentYear = #{currentYear}
+            and a.iscs = #{IS_CS}
+	</select>
+
+    <!-- 根据 User  获得该User所在组下有多少个用户   复审 -->
+	<select id="selectfsUsersByGroup" resultType="User" parameterType="User">
+		select distinct a.* 
+		  from  sys_user a 
+		  join sys_user_role ur on a.id=ur.user_id
+		 where a.del_flag = '0' 
+		    and a.id != '1'
+		    and ur.role_id in('7428592f045342109b9eafb6113f2c43','ab05186bd538401587b2d9c4d4f37977','daa362d072354d55b72529904dedd663','4663512fb8f245db953b2ed6f992e24a')  <!-- 评审专家，主审专家，专业组长,主审专家和专业组组长 -->
+		    and a.groupId = #{groupId}
+    	    and a.currentYear = #{currentYear}
+    	    and a.isfs = #{IS_FS}
+	</select>
+	
+	
+	<!-- 获得所有的 投票专家  初审-->
+	<select id="selectcsAllZJUsers" resultType="User" parameterType="User">
+		select distinct a.* 
+		  from  sys_user a 
+		  join sys_user_role ur on a.id=ur.user_id
+		 where a.del_flag = '0' 
+		    and a.id != '1'
+		    and ur.role_id in('7428592f045342109b9eafb6113f2c43','ab05186bd538401587b2d9c4d4f37977','daa362d072354d55b72529904dedd663','4663512fb8f245db953b2ed6f992e24a')  <!-- 评审专家，主审专家，专业组长 ,主审专家和专业组组长-->
+		    and a.currentYear = #{currentYear}
+		    and a.iscs = #{IS_CS}
+	</select>
+	
+	<!-- 获得所有的 投票专家  复审-->
+	<select id="selectfsAllZJUsers" resultType="User" parameterType="User">
+		select distinct a.* 
+		  from  sys_user a 
+		  join sys_user_role ur on a.id=ur.user_id
+		 where a.del_flag = '0' 
+		    and a.id != '1'
+		    and ur.role_id in('7428592f045342109b9eafb6113f2c43','ab05186bd538401587b2d9c4d4f37977','daa362d072354d55b72529904dedd663','4663512fb8f245db953b2ed6f992e24a')  <!-- 评审专家，主审专家，专业组长 ,主审专家和专业组组长-->
+		    and a.currentYear = #{currentYear}
+		    and a.isfs = #{IS_FS}
+	</select>
+	
+	<!-- 获得user表中 共有多少个组  初审 -->
+	<select id="selectcsGroups" resultType="User" parameterType="User">
+		select u.groupId as "groupId"
+    	  from sys_user u 
+    	 where u.id != 1 and u.del_flag = '0' and u.currentYear = #{currentYear} and u.iscs = #{IS_CS} 
+    	 group by u.groupId
+	</select>
+	
+	<!-- 主审专家列表 -->
+	<select id="selectZszjList" resultType="User" parameterType="User">
+		select 
+		a.id,
+    	a.login_name,
+    	a.password,
+		a.name,
+		a.mobile,
+		a.login_ip,
+		a.login_date,
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag
+		 from sys_user a  
+		 join sys_user_role ur on a.id = ur.user_id
+		 join sys_role r on r.id = ur.role_id
+		where (r.id = 'daa362d072354d55b72529904dedd663' or r.id = '4663512fb8f245db953b2ed6f992e24a')
+		  and a.del_flag = '0' 
+		  and a.currentYear = #{currentYear}
+	</select>
+</mapper>

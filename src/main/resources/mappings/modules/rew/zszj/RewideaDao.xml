@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.zszj.dao.RewideaDao">
+    
+	<sql id="rewideaColumns">
+		a.id AS "id",
+		p.projectid AS "projectid",
+<!-- 		p.create_by AS "createBy.id",
+		p.create_date,
+		p.update_by AS "updateBy.id",
+		p.update_date, -->
+		
+		p.currentYear as "currentYear",
+		a.levelid AS "levelid",
+		a.revidea AS "revidea",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate"
+	</sql>
+	
+	<sql id="rewideaJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.zszj.entity.Rewidea">
+		SELECT 
+			<include refid="rewideaColumns"/>
+		FROM rewproject p
+		<include refid="rewideaJoins"/>
+		left join rewidea a on a.projectId = p.projectId
+
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.zszj.entity.Rewidea">
+		SELECT 
+			<include refid="rewideaColumns"/>
+			,g.groupName as "groupName"
+			,o.name as "companyName"
+		FROM rewproject p
+		left join rewidea a on a.projectId = p.projectId
+		left join rewgroup g on g.id = p.groupId
+		left join sys_office o on o.id=p.companyId
+		<where>
+			<if test="projectid != null and projectid != ''">
+				 p.projectid = #{projectid}
+			</if>
+			<if test="!isGlyRole">
+				and p.groupId = #{currentUser.groupId}
+			</if>
+			<if test="currentYear != null and currentYear != ''">
+				and p.currentYear = #{currentYear}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY p.groupId,p.companyId,p.projectid ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	
+	
+	<select id="findAllList" resultType="com.zkr.rew.zszj.entity.Rewidea">
+		SELECT 
+			<include refid="rewideaColumns"/>
+		FROM rewidea a
+		<include refid="rewideaJoins"/>
+		<where>
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rewidea(
+			projectid,
+			levelid,
+			revidea,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{projectid},
+			#{levelid},
+			#{revidea},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewidea SET 	
+			projectid = #{projectid},
+			levelid = #{levelid},
+			revidea = #{revidea},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewidea
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 检验 该项目ID  是否已经有了评审意见 -->
+	<select id="getrewIdeaByProjectId" resultType="com.zkr.rew.zszj.entity.Rewidea" parameterType="java.lang.String">
+		select a.*
+		from rewidea a
+		where a.projectId = #{projectId}
+	</select>
+	
+	
+	<!-- 主审专家 对应项目列表    仅仅是主审专家-->
+	<select id="findzxList" resultType="com.zkr.rew.zszj.entity.Rewidea" parameterType="com.zkr.rew.zszj.entity.Rewidea">
+				SELECT 
+					<include refid="rewideaColumns"/>
+					,g.groupName as "groupName"
+					,o.name as "companyName"
+					,p.projectName as "projectName"
+					,u.name as "userName"
+					,u.id as "userid"
+					,"1" as "isZszj"
+				FROM rewproject p 
+				left join rewidea a on a.projectId = p.projectId
+				left join rewgroup g on g.id = p.groupId
+				left join sys_office o on o.id=p.companyId
+			    join sys_user u on u.groupId = p.groupId 
+			    join rew_zszj_project zp on u.id = zp.userid and zp.projectid = p.projectid
+			    <where>
+					    u.id = #{userid}
+					    and u.groupId = #{currentUser.groupId}
+					<if test="projectName != null and projectName != ''">
+						and p.projectName LIKE '%${projectName}%'
+					</if>
+					<if test="userName != null and userName != ''">
+						and u.name LIKE '%${userName}%'
+					</if>
+					<if test="projectid != null and projectid != ''">
+						and p.projectId = #{projectid}
+					</if>
+					<if test="currentYear != null and currentYear != ''">
+						and p.currentYear = #{currentYear}
+						and u.currentYear = #{currentYear}
+					</if>
+					   
+				</where>
+				order by p.projectName
+	</select>
+	
+	<!-- 既是专业组长  又是 主审专家     findzxList 和 findzxList2-->
+	<select id="findzxList2" resultType="com.zkr.rew.zszj.entity.Rewidea" parameterType="com.zkr.rew.zszj.entity.Rewidea">
+	
+	
+	
+	select t.* from (
+				SELECT 
+					<include refid="rewideaColumns"/>
+					,g.groupName as "groupName"
+					,o.name as "companyName"
+					,p.projectName as "projectName"
+					,u.name as "userName"
+					,u.id as "userid"
+					,"1" as "isZszj"
+				FROM rewproject p 
+				left join rewidea a on a.projectId = p.projectId
+				left join rewgroup g on g.id = p.groupId
+				left join sys_office o on o.id=p.companyId
+			    join sys_user u on u.groupId = p.groupId 
+			    join rew_zszj_project zp on u.id = zp.userid and zp.projectid = p.projectid
+			    <where>
+					    u.id = #{userid}
+					    and u.groupId = #{currentUser.groupId}
+					<if test="projectName != null and projectName != ''">
+						and p.projectName LIKE '%${projectName}%'
+					</if>
+					<if test="userName != null and userName != ''">
+						and u.name LIKE '%${userName}%'
+					</if>  
+					 <if test="projectid != null and projectid != ''">
+						and p.projectId = #{projectid}
+					</if>
+					<if test="currentYear != null and currentYear != ''">
+						and p.currentYear = #{currentYear}
+						and u.currentYear = #{currentYear}
+					</if>
+				</where>
+	union
+				SELECT 
+					<include refid="rewideaColumns"/>
+					,g.groupName as "groupName"
+					,o.name as "companyName"
+					,p.projectName as "projectName"
+					,u.name as "userName"
+					,u.id as "userid"
+					,"2" as "isZszj"
+				FROM rewproject p 
+				left join rewidea a on a.projectId = p.projectId
+				left join rewgroup g on g.id = p.groupId
+				left join sys_office o on o.id=p.companyId
+			    join sys_user u on u.groupId = p.groupId 
+			    join rew_zszj_project zp on u.id = zp.userid and zp.projectid = p.projectid
+			    <where>
+					    and u.id != #{userid}
+					    and u.groupId = #{currentUser.groupId}
+					<if test="projectName != null and projectName != ''">
+						and p.projectName LIKE '%${projectName}%'
+					</if>
+					<if test="userName != null and userName != ''">
+						and u.name LIKE '%${userName}%'
+					</if> 
+					<if test="projectid != null and projectid != ''">
+						and p.projectId = #{projectid}
+					</if>
+					<if test="currentYear != null and currentYear != ''">
+						and p.currentYear = #{currentYear}
+						and u.currentYear = #{currentYear}
+					</if>					     
+				</where>
+				)t order by t.projectName
+	</select>
+	
+	<!-- 仅仅是专业组长      或者是管理员-->
+		<select id="findzxList3" resultType="com.zkr.rew.zszj.entity.Rewidea" parameterType="com.zkr.rew.zszj.entity.Rewidea">
+				SELECT 
+					<include refid="rewideaColumns"/>
+					,g.groupName as "groupName"
+					,o.name as "companyName"
+					,p.projectName as "projectName"
+					,u.name as "userName"
+					,u.id as "userid"
+					,"2" as "isZszj"
+				FROM rewproject p 
+				left join rewidea a on a.projectId = p.projectId
+				left join rewgroup g on g.id = p.groupId
+				left join sys_office o on o.id=p.companyId
+			    join sys_user u on u.groupId = p.groupId
+			    join rew_zszj_project zp on u.id = zp.userid and zp.projectid = p.projectid
+			    <where>
+			    
+			    	<if test="!isGlyRole and !isZyzzRole and userid != null and userid != ''">
+					    u.id = #{userid}
+					    and u.groupId = #{currentUser.groupId}
+					</if>
+					
+					<if test="!isGlyRole and isZyzzRole and userid != null and userid != ''">
+					    and u.groupId = #{currentUser.groupId}
+					</if>
+					
+					<if test="projectName != null and projectName != ''">
+						and p.projectName LIKE '%${projectName}%'
+					</if>
+					<if test="userName != null and userName != ''">
+						and u.name LIKE '%${userName}%'
+					</if>   
+					<if test="projectid != null and projectid != ''">
+						and p.projectId = #{projectid}
+					</if>
+					<if test="currentYear != null and currentYear != ''">
+						and p.currentYear = #{currentYear}
+						and u.currentYear = #{currentYear}
+					</if>					   
+				</where>
+				order by g.groupName,p.projectName
+	</select>
+	
+	
+	<delete id="zxdelete" parameterType="com.zkr.rew.zszj.entity.Rewidea">
+		delete from rew_zszj_project 
+			 <where>
+			 	<if test="userid != null and userid != ''">
+			 		userid = #{userid}
+			 	</if>
+			 	<if test="projectid != null and projectid != ''">
+			 		and projectid = #{projectid}
+			 	</if>
+			 </where>
+	</delete>
+	
+	<insert id="zxsave" parameterType="com.zkr.rew.zszj.entity.Rewidea">
+		insert into rew_zszj_project(userid,projectid) values(#{userid},#{projectid})
+	</insert>
+	
+	<select id="selectzxInfo" resultType="com.zkr.rew.zszj.entity.Rewidea" parameterType="com.zkr.rew.zszj.entity.Rewidea">
+		select * from rew_zszj_project where userid = #{userid} and projectid = #{projectid}
+	</select>
+	
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.dict.dao.RewdmlbDao">
+    
+	<select id="findList" resultType="com.zkr.rew.dict.entity.Dmlb">
+		select id,name from rewDmlb order by sortNum
+	</select>
+	
+	
+	<select id="selectMens" resultType="com.zkr.rew.dict.entity.Dmlb" parameterType="com.zkr.rew.dict.entity.Dmlb">
+		select * from rewsyscontrol 
+		<where>
+				currentYear = #{currentYear}
+			<if test="!isGlyRole"> 
+			   and groupId = #{currentUser.groupId}
+			</if>
+		</where>
+		order by sort,name,groupId
+	</select>
+	
+	<update id="updateMenusById" parameterType="com.zkr.rew.dict.entity.Dmlb">
+		update rewsyscontrol set enable = #{enable}
+		where id = #{id} and groupId = #{groupId} and currentYear = #{currentYear}
+	</update>
+	
+	
+	
+<!-- 	<select id="selectMenuBygroup" parameterType="com.zkr.rew.dict.entity.Rewgroupson" resultType="com.zkr.rew.dict.entity.Dmlb">
+		select id,name,enable,groupId from rewsyscontrol 
+			 where groupId = #{parentgroupid} 
+	</select> -->
+	
+	
+	<!-- 该组下的 对应的 菜单【id】是否可用      enable 值为1  可用-->
+	<select id="selectMenuById" parameterType="com.zkr.rew.dict.entity.Dmlb" resultType="com.zkr.rew.dict.entity.Dmlb">
+		select id,name,enable,groupId from rewsyscontrol 
+			where id = #{id} 
+			<if test="groupId != null and groupId != ''">
+				and groupId = #{groupId}
+			</if>
+			<if test="currentYear != null and currentYear != ''">
+				and currentYear = #{currentYear}
+			</if>
+			 
+	</select>
+	
+	<!-- 获得评审年度 -->
+	<select id="selectCurrentYear" resultType="java.lang.String">
+		select currentyear from rew_currentyear
+	</select>
+	
+	<!-- 更新评审年度 -->
+	<update id="savecurrentyear" parameterType="java.lang.String">
+		update rew_currentyear  SET currentyear = #{currentyear}
+	</update>
+	
+	<!-- 年度List -->
+	<select id="selectYearList" resultType="com.zkr.rew.common.utils.SelectEntity">
+		select year as "key"  from rew_yearlist
+	</select>
+	
+	
+	<select id="tpcontrolMenus" resultType="com.zkr.rew.dict.entity.Dmlb">
+		select id,name,enable
+		from rew_menucontrol
+	</select>
+	
+	<update id="updatetpMenusById" parameterType="com.zkr.rew.dict.entity.Dmlb">
+		update rew_menucontrol set enable = #{enable}
+		where id = #{id}
+	</update>
+	
+	<select id="getmenucontroltpById" parameterType="java.lang.String" resultType="com.zkr.rew.dict.entity.Dmlb">
+	  select id,name,enable
+		from rew_menucontrol
+	   where id = #{id}
+	</select>
+	
+	
+	
+	
+	<!-- 初审 复审 按钮 控制  开始 -->
+	
+	
+	<select id="selectcfvalue" resultType="java.lang.String">
+		select isshowcontrol from rew_cfcontrol
+	</select>
+	
+	<update id="savecfcontrol" parameterType="java.lang.String">
+		update rew_cfcontrol  SET isshowcontrol = #{currentval}
+	</update>
+	
+	<!-- 初审 复审 按钮 控制  结束 -->
+</mapper>

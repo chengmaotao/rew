@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.dict.dao.RewscopekpiDao">
+    
+	<sql id="rewscopekpiColumns">
+		a.id AS "id",
+		a.categoryid AS "categoryid",
+		a.kpicategory AS "kpicategory",
+		a.kpidetailed AS "kpidetailed",
+		a.kpiweight AS "kpiweight",
+		a.scopelevel AS "scopelevel",
+		a.sortNum AS "sortNum"
+	</sql>
+	
+	<sql id="rewscopekpiJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.dict.entity.Rewscopekpi">
+		SELECT 
+			<include refid="rewscopekpiColumns"/>
+		FROM rewscopekpi a
+		<include refid="rewscopekpiJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.dict.entity.Rewscopekpi">
+		SELECT 
+			<include refid="rewscopekpiColumns"/>
+		FROM rewscopekpi a
+		<include refid="rewscopekpiJoins"/>
+		<where>
+			<if test="categoryid != null and categoryid != ''">
+				a.categoryid = #{categoryid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.categoryid
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.dict.entity.Rewscopekpi">
+		SELECT 
+			<include refid="rewscopekpiColumns"/>
+		FROM rewscopekpi a
+		<include refid="rewscopekpiJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rewscopekpi(
+			categoryid,
+			kpicategory,
+			kpidetailed,
+			kpiweight,
+			scopelevel,
+			sortNum
+		) VALUES (
+			#{categoryid},
+			#{kpicategory},
+			#{kpidetailed},
+			#{kpiweight},
+			#{scopelevel},
+			#{sortNum}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewscopekpi SET 	
+			categoryid = #{categoryid},
+			kpicategory = #{kpicategory},
+			kpidetailed = #{kpidetailed},
+			kpiweight = #{kpiweight},
+			scopelevel = #{scopelevel},
+			sortNum = #{sortNum}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewscopekpi
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findObjByCategoryIdAndSortNum" parameterType="com.zkr.rew.dict.entity.Rewscopekpi" resultType="com.zkr.rew.dict.entity.Rewscopekpi">
+		SELECT 
+			<include refid="rewscopekpiColumns"/>
+		FROM rewscopekpi a
+		<where>
+		   a.sortNum = #{sortNum}
+			<if test="categoryid != null and categoryid != ''">
+				and	a.categoryid = #{categoryid}
+			</if>
+			
+		</where>
+	
+	</select>
+	
+	<!-- 根据申报类别ID  获得 对象list -->
+	<select id="findObjListByCategoryId" parameterType="java.lang.String" resultType="com.zkr.rew.dict.entity.Rewscopekpi">
+		SELECT 
+			<include refid="rewscopekpiColumns"/>
+		FROM rewscopekpi a
+	   WHERE a.categoryid = #{categoryid}
+	   ORDER BY a.sortNum
+	</select>
+	
+</mapper>

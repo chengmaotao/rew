@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.fs.dao.fsdyl.RewfsdylDao">
+    
+	<sql id="rewfsdylColumns">
+		a.id AS "id",
+		p.projectid AS "projectid",
+		p.currentYear as "currentYear",
+		p.projectName as "projectName",
+		p.groupId as "groupId",
+		p.companyId as "companyId",
+		p.categoryId as "categoryId",
+		p.sblevel as "sblevel",
+		a.isAgree as "isAgree",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate"		
+	</sql>
+	
+	
+	<!-- 复审第一轮投票列表    20161208   数据来源 小组推荐意见-->
+	<select id="selectFsdyltpList" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl" parameterType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl">
+		select
+		 <include refid="rewfsdylColumns"/>
+		 from rewproject p		
+		 join rew_fsdatasrc r on p.projectId = r.projectId
+	     left join rewfsdyltp a on a.projectId = p.projectId
+	     <if test="!isGlyRole">
+			and a.create_by=#{currentUser.id}
+		</if> 
+		where r.recomIdea = '1'   
+		<if test="currentYear != null and currentYear != ''">
+			and p.currentYear = #{currentYear}
+		</if>
+		<if test="projectid != null and projectid != ''">
+			and p.projectId = #{projectid}
+		</if>
+		 order by r.sort,p.groupId,p.projectName
+	</select>
+	
+
+	
+	
+	
+	
+	
+	
+	
+	<!-- 补投时，清空没有中特等奖的票数  重新开始投 -->
+	<delete id="deleteNotFsdyltpres" parameterType="java.util.Map">
+		delete a from rewfsdyltp a join rewproject p on a.projectId = p.projectId
+		<where>
+			p.currentYear = #{currentYear}
+			<if test="!list.isEmpty()">
+				 and a.projectId not in 
+				 <foreach collection="list" item="t" index="index"
+		            open="(" close=")" separator=",">
+		            #{t.projectid}
+		        </foreach>     
+			 </if>
+		</where>	
+	</delete>
+	
+	
+		<!-- 复审第一轮投票列表    补投时的  列表   也就是 去掉 已经是特等奖的              数据来源 小组推荐意见-->
+	<select id="selectFsdyltpListbt" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl" parameterType="java.util.Map">
+		select
+		 <include refid="rewfsdylColumns"/>
+		 from rewproject p	
+		 join rew_fsdatasrc r on p.projectId = r.projectId
+	     left join rewfsdyltp a on a.projectId = p.projectId
+	     <if test="!isGlyRole">
+			and a.create_by=#{userId}
+		</if> 
+		where r.recomIdea = '1'   
+		<if test="currentYear != null and currentYear != ''">
+			and p.currentYear = #{currentYear}
+		</if>
+		
+		<if test="projectid != null and projectid != ''">
+			and p.projectId = #{projectid}
+		</if>
+		
+	  <if test="!list.isEmpty()">
+		 and p.projectId not in 
+		 <foreach collection="list" item="t" index="index"
+            open="(" close=")" separator=",">
+            #{t.projectid}
+        </foreach>
+	 </if>
+	 order by r.sort
+	</select>
+	
+	
+		<!-- 获得该用户 已经投了多少票了 -->
+	<select id="selectFsdyltpNum" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl" parameterType="com.thinkgem.jeesite.modules.sys.entity.User" >
+		select 
+			  a.* 
+		 from rewproject p join rewfsdyltp a on p.projectId = a.projectId 
+		where a.isAgree = '1' and a.create_by = #{id}
+		  and p.currentYear = #{currentYear}
+	</select>
+	
+	<!-- 复审第一轮补投时，   获得该用户 已经投了多少票了-->
+	<select id="selectFsdyltpNumtp" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl" parameterType="java.util.Map" >
+		select 
+		      a.* 
+		 from rewproject p join rewfsdyltp a on p.projectId = a.projectId 
+		where a.isAgree = '1' and a.create_by = #{userid}
+		  and p.currentYear = #{currentYear}
+		  <if test="!list.isEmpty()">
+			 and a.projectId not in 
+			 <foreach collection="list" item="t" index="index"
+	            open="(" close=")" separator=",">
+	            #{t.projectid}
+	        </foreach>
+		 </if>	 
+	</select>
+	
+	
+	
+	
+	<insert id="insert">
+		INSERT INTO rewfsdyltp(
+			projectId,
+			isAgree,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{projectid},
+			#{isAgree},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewfsdyltp SET 	
+			isAgree = #{isAgree},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<delete id="delete" parameterType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl">
+		delete from rewfsdyltp where id = #{id} and create_by=#{currentUser.id}
+	</delete>
+	
+	
+	<!-- 特等奖    数据来源小组推荐意见 -->
+	<select id="selectTdjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.lang.String">
+		
+		select p.projectId as "projectid",
+			   p.currentYear as "currentYear",
+	          IFNULL(t.num,0) AS "num",
+	          p.categoryId as "categoryId",
+	          p.groupId as "groupId",
+	          "特等奖" as "levelName",
+	          p.projectName as "projectname",
+	          p.companyId as "companyId"
+	     from rewproject p
+	     join (select a.projectId, count(s.projectId) as num from rew_fsdatasrc a left join rewfsdyltp s on a.projectId = s.projectId and s.isAgree = '1' where a.recomIdea = '1' GROUP BY a.projectId)t on t.projectId = p.projectId
+		 where p.currentYear = #{currentYear}
+		 order by t.num DESC,p.projectName
+	</select>
+	
+	
+
+	
+	
+	<!-- 一等奖   数据来源小组推荐意见 -->
+	<select id="selectYdjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.lang.String">
+		
+		select cwl.* from(		
+				select p.projectId as "projectid",
+				       p.currentYear as "currentYear",
+			          IFNULL(t.num,0) AS "num",
+			          p.categoryId as "categoryId",
+			          p.groupId as "groupId",
+			          "一等奖" as "levelName",
+			          p.projectName as "projectname",
+			          p.companyId as "companyId"
+			     from rewproject p
+			     join (select a.projectId, count(s.projectId) as num from rew_fsdatasrc a left join rewfsdeltp s on  a.projectId = s.projectId and s.isAgree = '1' where a.recomIdea = '2' GROUP BY a.projectId)t on t.projectId = p.projectId
+				 where p.currentYear = #{currentYear}
+				
+				union
+				
+				select p.projectId as "projectid",
+				       p.currentYear as "currentYear",
+			          IFNULL(t.num,0) AS "num",
+			          p.categoryId as "categoryId",
+			          p.groupId as "groupId",
+			          "一等奖" as "levelName",
+			          p.projectName as "projectname",
+			          p.companyId as "companyId"
+			     from rewproject p
+				JOIN(
+					select temp.projectId, count(a.projectId) as num 
+					 from (select r.projectId from rew_fsdatasrc r 
+						    where r.recomIdea = '1'
+							  and not EXISTS (select 1 from rewfsdylres t1 where t1.projectId = r.projectId) ) temp
+					left JOIN rewfsdeltp a on a.projectId = temp.projectId 
+					 GROUP BY temp.projectId
+					) t on p.projectId = t.projectId
+				where p.currentYear = #{currentYear}
+				)cwl 
+				order by cwl.num DESC,cwl.projectname
+	</select> 
+	
+	
+	
+	
+	<!-- 二等奖   数据来源一直是初审结果  -->
+	<select id="selectEdjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.util.Map">
+		
+		select p.projectId as "projectid",
+		       p.currentYear as "currentYear",
+	          IFNULL(t.num,0) AS "num",
+	          p.categoryId as "categoryId",
+	          p.groupId as "groupId",
+	          "二等奖" as "levelName",
+	          p.projectName as "projectname",
+	          p.companyId as "companyId"
+	     from rewproject p
+	     join (select a.projectId, count(s.projectId) as num 
+              from rew_fsdatasrc a left join rewfsdsltp s on a.projectId = s.projectId and s.isAgree = '1' 
+             where (a.recomIdea = '1' or a.recomIdea = '2' or a.recomIdea = '3')             
+	             <if test="!list.isEmpty()">
+					 and a.projectId not in 
+					 <foreach collection="list" item="t" index="index"
+			            open="(" close=")" separator=",">
+			            #{t.projectid}
+			        </foreach>
+				</if>
+			 GROUP BY a.projectId)t 
+       on t.projectId = p.projectId
+		where p.currentYear = #{currentYear}
+		order by t.num DESC,p.projectName
+	</select> 
+	
+	
+	<!-- 复审第二轮投票*********************************************************** -->
+	
+			<!-- 获得该用户 已经投了多少票了 -->
+	<select id="selectFsdeltpNum" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl" parameterType="com.thinkgem.jeesite.modules.sys.entity.User" >
+		select 
+		      a.* 
+		 from rewproject p join rewfsdeltp a on p.projectId = a.projectId 
+		where a.isAgree = '1'
+		  and a.create_by = #{id}
+		  and p.currentYear = #{currentYear}
+	</select>
+	
+	<!-- 补投时    获得该用户 已经投了多少票了-->
+	<select id="selectFsdeltpNumtp" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl" parameterType="java.util.Map" >
+		select 
+		      a.* 
+		 from rewproject p join rewfsdeltp a on p.projectId = a.projectId 
+		where a.isAgree = '1' 
+		  and a.create_by = #{userid}
+		  and p.currentYear = #{currentYear}
+ 		<if test="!list.isEmpty()">
+			 and a.projectId not in 
+			 <foreach collection="list" item="t" index="index"
+	            open="(" close=")" separator=",">
+	            #{t.projectid}
+	        </foreach>
+		</if>
+	</select>
+	
+	
+	<delete id="deleteNotFsdeltpres" parameterType="java.util.Map">
+		delete a from rewfsdeltp a join rewproject p on a.projectId = p.projectId
+		<where>
+			p.currentYear = #{currentYear}					
+			 <if test="!list.isEmpty()">
+				 and a.projectId not in 
+				 <foreach collection="list" item="t" index="index"
+		            open="(" close=")" separator=",">
+		            #{t.projectid}
+		        </foreach>
+			</if>
+		</where>
+	</delete>
+	
+	
+	<!-- 特等奖 没有评选上 特等奖的  -->
+	 <select id="selectNotTdjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.util.Map">
+		select p.projectId as "projectid",
+			   p.currentYear as "currentYear",
+	          IFNULL(t.num,0) AS "num",
+	          p.categoryId as "categoryId",
+	          p.groupId as "groupId",
+	          "一等奖" as "levelName",
+	          p.projectName as "projectname",
+	          p.companyId as "companyId"
+	     from rewproject p
+	     join
+			(select s.projectId as "projectid", count(s.projectId) as "num" 
+			  from rewfsdyltp s 
+			 where s.isAgree = '1'
+		  		<if test="!list.isEmpty()">
+					 and s.projectId not in 
+					 <foreach collection="list" item="t" index="index"
+			            open="(" close=")" separator=",">
+			            #{t.projectid}
+			        </foreach>
+				</if>	               
+			    GROUP BY s.projectId)t on t.projectId = p.projectId
+		<where>
+			<if test="currentYear != null and currentYear != ''">
+				p.currentYear = #{currentYear}
+			</if>
+		</where>
+		order by t.num DESC
+	</select> 
+	
+	
+		<!-- 特等奖 没有评选上 特等奖和一等奖的  -->
+	 <select id="selectNotTdjAndYdjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.util.Map">
+	 
+	 		select p.projectId as "projectid",
+	 		  p.currentYear as "currentYear",
+	          IFNULL(t.num,0) AS "num",
+	          p.categoryId as "categoryId",
+	          p.groupId as "groupId",
+	          "二等奖" as "levelName",
+	          p.projectName as "projectname",
+	          p.companyId as "companyId"
+	     from rewproject p
+	     join
+				(select s.projectId as "projectid", count(s.projectId) as "num" 
+				  from rewfsdyltp s 
+				 where s.isAgree = '1'
+			  		<if test="!list.isEmpty()">
+						 and s.projectId not in 
+						 <foreach collection="list" item="t" index="index"
+				            open="(" close=")" separator=",">
+				            #{t.projectid}
+				        </foreach>
+					</if>		               
+				    GROUP BY s.projectId)t on t.projectId = p.projectId
+		<where>
+			<if test="currentYear != null and currentYear != ''">
+				p.currentYear = #{currentYear}
+			</if>
+		</where>
+		order by t.num DESC
+	</select> 
+	
+	
+			<!-- 一等奖 没有评选上 一等奖的  -->
+	 <select id="selectNotYdjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.util.Map">
+	 	select p.projectId as "projectid",
+	 		   p.currentYear as "currentYear",
+	          IFNULL(t.num,0) AS "num",
+	          p.categoryId as "categoryId",
+	          p.groupId as "groupId",
+	          "二等奖" as "levelName",
+	          p.projectName as "projectname",
+	          p.companyId as "companyId"
+	     from rewproject p
+	     join
+				(select s.projectId as "projectid", count(s.projectId) as "num" 
+				  from rewfsdeltp s 
+				 where s.isAgree = '1'
+			  		<if test="!list.isEmpty()">
+						 and s.projectId not in 
+						 <foreach collection="list" item="t" index="index"
+				            open="(" close=")" separator=",">
+				            #{t.projectid}
+				        </foreach>
+					</if>		               
+				    GROUP BY s.projectId)t on t.projectId = p.projectId
+		<where>
+			<if test="currentYear != null and currentYear != ''">
+				p.currentYear = #{currentYear}
+			</if>
+		</where>
+		order by t.num DESC
+	</select> 
+	
+	
+	<!-- 复审第二轮投票       数据来源小组推荐意见-->
+	<select id="selectFsdeltpList" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl" parameterType="java.util.Map">
+			select
+				 <include refid="rewfsdylColumns"/>
+		     from rewproject p 
+		     join rew_fsdatasrc r on p.projectId = r.projectId   <!-- 数据来在于  小组推荐意见是一等奖的 -->
+	    left join rewfsdeltp a on a.projectId = p.projectId
+	      <if test="!isGlyRole">
+			 and a.create_by=#{currentUserId}
+		  </if> 
+		where (r.recomIdea = '2' or r.recomIdea = '1') 
+		  and p.currentYear = #{currentYear}
+		<if test="projectid != null and projectid != ''">
+			and p.projectId = #{projectid}
+		</if>
+		<if test="!list.isEmpty()">
+			 and r.projectId not in
+			 <foreach collection="list" item="t" index="index"
+	            open="(" close=")" separator=",">
+	            #{t.projectid}
+	        </foreach>
+		</if>
+		order by r.sort,p.groupId,p.projectName
+	</select>
+	
+	
+	
+	
+	
+	
+	<!-- 第一轮评审结果   获得特等奖的 -->
+	<select id="selectTdjOKList" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl">
+		select projectId as "projectid"
+		 from rewfsdylres
+	</select>
+	
+		<!-- 第一轮  第二轮 评审结果   获得特等奖和一等奖的 -->
+	<select id="selectTdjAndYdjOKList" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl">
+		select projectId as "projectid" from rewfsdylres
+		union
+		select projectId as "projectid" from rewfsdelres
+	</select>
+	
+	
+	<insert id="insert2">
+		INSERT INTO rewfsdeltp(
+			projectId,
+			isAgree,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{projectid},
+			#{isAgree},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update2">
+		UPDATE rewfsdeltp SET 	
+			isAgree = #{isAgree},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="delete2" parameterType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl">
+		delete from rewfsdeltp where id = #{id} and create_by=#{currentUser.id}
+	</delete>
+	
+	
+	
+	
+	<!-- 复审第三轮投票*********************************************************** -->
+	
+			<!-- 获得该用户 已经投了多少票了 -->
+	<select id="selectFsdsltpNum" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl" parameterType="com.thinkgem.jeesite.modules.sys.entity.User" >
+		select a.* from rewproject p join rewfsdsltp a on p.projectId = a.projectId 
+		 where a.isAgree = '1' and a.create_by = #{id}
+		   and p.currentYear = #{currentYear}
+	</select>
+	
+	<!-- 复审第三轮投票   数据来源 初审结果 -->
+	<select id="selectFsdsltpList" resultType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl" parameterType="java.util.Map">
+		select
+		 <include refid="rewfsdylColumns"/>
+		 from rewproject p
+		 join rew_fsdatasrc r on p.projectId = r.projectId
+	     left join rewfsdsltp a on a.projectId = p.projectId
+	     <if test="!isGlyRole">
+			and a.create_by=#{currentUserId}
+		 </if> 
+		where (r.recomIdea = 1 or r.recomIdea = 2 or r.recomIdea = 3 ) <!-- 初审是 特等奖  一等奖 二等奖的 -->
+		  and p.currentYear = #{currentYear}
+		  
+		<if test="projectid != null and projectid != ''">
+			and p.projectId = #{projectid}
+		</if>
+		<if test="!list.isEmpty()">
+			 and r.projectId not in
+			 <foreach collection="list" item="t" index="index"
+	            open="(" close=")" separator=",">
+	            #{t.projectid}
+	        </foreach>
+		</if>  
+		<!-- order by r.sort,p.groupId, p.projectName -->	
+		order by p.groupId, p.projectName	
+	</select>
+	
+	
+	
+	<insert id="insert3">
+		INSERT INTO rewfsdsltp(
+			projectId,
+			isAgree,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{projectid},
+			#{isAgree},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update3">
+		UPDATE rewfsdsltp SET 	
+			isAgree = #{isAgree},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="delete3" parameterType="com.zkr.rew.fs.entity.fsdyl.Rewfsdyl">
+		delete from rewfsdsltp where id = #{id} and create_by=#{currentUser.id}
+	</delete>
+	
+	
+</mapper>

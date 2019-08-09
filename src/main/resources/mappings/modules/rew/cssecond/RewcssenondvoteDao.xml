@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.cssecond.dao.RewcssenondvoteDao">
+    
+	<sql id="rewcssenondvoteColumns">
+		a.id AS "id",
+		p.projectid AS "projectid",
+		p.currentYear as "currentYear",
+		a.isagree0 AS "isagree0",
+		a.isagree1 AS "isagree1",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate"
+	</sql>
+	
+	<sql id="rewcssenondvoteJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.cssecond.entity.Rewcssenondvote">
+		SELECT 
+			<include refid="rewcssenondvoteColumns"/>
+		FROM rewcssenondvote a
+		<include refid="rewcssenondvoteJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.cssecond.entity.Rewcssenondvote">
+		SELECT 
+			<include refid="rewcssenondvoteColumns"/>
+			,c.categoryName as "categoryName"
+			,IFNULL(tmp.countNum,0) as "countNum"
+			,ti.recomIdea as "recomIdea"
+			,g.groupName as "groupName"
+		FROM rewproject p 
+		left join rewcssenondvote a on a.projectId = p.projectId
+		<if test="!isGlyRole">
+			and a.create_by=#{currentUser.id}
+		</if> 
+		
+		left join rewcategory c on c.id = p.categoryId
+	    left join (select t.projectId ,count(t.projectId) as countNum  
+		            from (select projectId,create_by from rewcsfirstvote f where f.isAgree = '1') t 
+		         group by t.projectId
+				)tmp on tmp.projectId = p.projectId 
+		left join rewrecomidea ti on ti.projectId = p.projectId
+		left join rewgroup g on g.id = p.groupId
+		<include refid="rewcssenondvoteJoins"/>
+		<where>
+			<if test="projectid != null and projectid != ''">
+				p.projectId = #{projectid}
+			</if>
+			
+			<if test="groupId != null and groupId != ''">
+				and p.groupId = #{groupId}
+			</if>
+			
+			<if test="currentYear != null and currentYear != ''">
+				and p.currentYear = #{currentYear}
+			</if>
+			<if test="isAgreeKey == 1">
+				and (a.isagree0 = '1' or a.isagree1 = '1')
+			</if>
+			<if test="isAgreeKey != '' and isAgreeKey == 0">
+				and (a.isagree0 is null or a.isagree0 = '0') and (a.isagree1 is null or a.isagree1 = '0')
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY <!-- g.groupName, -->ti.recomIdea,tmp.countNum DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.cssecond.entity.Rewcssenondvote">
+		SELECT 
+			<include refid="rewcssenondvoteColumns"/>
+		FROM rewcssenondvote a
+		<include refid="rewcssenondvoteJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rewcssenondvote(
+			projectid,
+			isagree0,
+			isagree1,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{projectid},
+			#{isagree0},
+			#{isagree1},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewcssenondvote SET 	
+			projectid = #{projectid},
+			isagree0 = #{isagree0},
+			isagree1 = #{isagree1},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewcssenondvote
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 特等奖已经投过票的 -->
+	<select id="selectVotedNum0" resultType="com.zkr.rew.cssecond.entity.Rewcssenondvote" parameterType="com.thinkgem.jeesite.modules.sys.entity.User" >
+		select a.* from rewproject p join rewcssenondvote a on a.projectId = p.projectId 
+		 where a.isAgree0 = '1' and a.create_by = #{id}
+		   and p.currentYear = #{currentYear}
+	</select>
+	
+		<!-- 一等奖已经投过票的 -->
+	<select id="selectVotedNum1" resultType="com.zkr.rew.cssecond.entity.Rewcssenondvote" parameterType="com.thinkgem.jeesite.modules.sys.entity.User" >
+		select a.* from rewproject p join rewcssenondvote a on a.projectId = p.projectId 
+		 where a.isAgree1 = '1' and a.create_by = #{id}
+		   and p.currentYear = #{currentYear}
+	</select>
+</mapper>

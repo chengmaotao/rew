@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.zyzz.dao.RewrecomideaDao">
+    
+	<sql id="rewrecomideaColumns">
+		a.id AS "id",
+		p.projectid AS "projectid",
+		p.currentYear as "currentYear",
+		IFNULL(t.scope,0) AS "scope",
+		a.recomidea AS "recomidea",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.allNum as "allNum",
+		a.num as "num",
+		a.isOK as "result"
+	</sql>
+	
+	<sql id="rewrecomideaJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.zyzz.entity.Rewrecomidea" parameterType="com.zkr.rew.dict.entity.Rewproject">
+		SELECT 
+			<include refid="rewrecomideaColumns"/>
+		FROM rewproject p
+		<include refid="rewrecomideaJoins"/>
+		left join rewrecomidea a on a.projectId = p.projectId
+        left join (select  a.projectId as "projectId",
+					ROUND((avg(a.KPIWeight1) +
+					AVG(a.KPIWeight2) + 
+					AVG(a.KPIWeight3) + 
+					AVG(a.KPIWeight4) + 
+					AVG(a.KPIWeight5)),2) as "scope"
+					from rewprojectscope a group by a.projectId
+			)t on t.projectId = p.projectId
+		WHERE p.projectId = #{projectid}
+		  AND p.currentYear = #{currentYear}
+	</select>
+	
+	
+	
+	<select id="findList" resultType="com.zkr.rew.zyzz.entity.Rewrecomidea">
+		SELECT 
+			<include refid="rewrecomideaColumns"/>
+			,g.groupName as "groupName"
+			,c.categoryName as "categoryName"
+		FROM rewproject p 
+		left join rewrecomidea a on a.projectId = p.projectId
+		left join rewgroup g on g.id = p.groupId
+		left join rewcategory c on c.id = p.categoryId
+
+        left join (select  a.projectId as "projectId",
+							ROUND((avg(a.KPIWeight1) +
+							AVG(a.KPIWeight2) + 
+							AVG(a.KPIWeight3) + 
+							AVG(a.KPIWeight4) + 
+							AVG(a.KPIWeight5)),2) as "scope"
+							from rewprojectscope a group by a.projectId
+					)t on t.projectId = p.projectId
+
+		<where>
+			<if test="projectid != null and projectid != ''">
+				p.projectId = #{projectid}
+			</if>
+			
+			<if test="!isGlyRole">
+				and p.groupId = #{currentUser.groupId}
+			</if>
+			<if test="currentYear != null and currentYear != ''">
+				and p.currentYear = #{currentYear}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY p.groupId,t.scope DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.zyzz.entity.Rewrecomidea">
+		SELECT 
+			<include refid="rewrecomideaColumns"/>
+		FROM rewrecomidea a
+		<include refid="rewrecomideaJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rewrecomidea(
+			projectid,
+			recomidea,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			allNum,
+			num,
+			isOK
+		) VALUES (
+			#{projectid},
+			#{recomidea},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{allNum},
+			#{num},
+			#{result}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewrecomidea SET 	
+			projectid = #{projectid},
+			recomidea = #{recomidea},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			allNum = #{allNum},
+			num = #{num},
+			isOK = #{result}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewrecomidea
+		WHERE id = #{id}
+	</update>
+	
+	
+	<select id="findListByGroup" resultType="com.zkr.rew.zyzz.entity.Rewrecomidea" parameterType="com.zkr.rew.zyzz.entity.Rewrecomidea">
+		SELECT 
+		    a.id AS "id",
+			p.projectid AS "projectid",
+			p.currentYear as "currentYear",
+			IFNULL(t.scope,0) AS "scope",
+			a.recomidea AS "recomidea",
+			a.create_by AS "createBy.id",
+			a.create_date AS "createDate",
+			a.update_by AS "updateBy.id",
+			a.update_date AS "updateDate"
+			,g.groupName as "groupName"
+			,g.id as "groupId"
+			,c.categoryName as "categoryName"
+			,"未通过" as "result"
+			,"0" as num
+		FROM rewproject p 
+		left join rewrecomidea a on a.projectId = p.projectId
+		left join rewgroup g on g.id = p.groupId
+		left join rewcategory c on c.id = p.categoryId
+
+        left join (select  a.projectId as "projectId",
+							ROUND((avg(a.KPIWeight1) +
+							AVG(a.KPIWeight2) + 
+							AVG(a.KPIWeight3) + 
+							AVG(a.KPIWeight4) + 
+							AVG(a.KPIWeight5)),2) as "scope"
+							from rewprojectscope a group by a.projectId
+					)t on t.projectId = p.projectId
+
+		<where>		
+			<if test="!isGlyRole">
+				p.groupId = #{currentUser.groupId}
+			</if>
+			<if test="currentYear != null and currentYear != ''">
+				and p.currentYear = #{currentYear}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY p.groupId,t.scope DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 获得小组推荐意见  是否全部 推荐 -->
+	<select id="selectAllMessByGroup" parameterType="com.thinkgem.jeesite.modules.sys.entity.User" resultType="com.zkr.rew.zyzz.entity.Rewrecomidea">
+<!-- 		select 
+		a.id AS "id",
+		a.projectid AS "projectid", 
+		a.recomidea AS "recomidea",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.allNum as "allNum",
+		a.num as "num",
+		a.isOK as "result"
+		from  rewrecomidea a where a.projectId in 
+		  ( SELECT p.projectId 
+		      from rewproject p 
+		      <where>
+		      	<if test="groupId != null">
+		      		p.groupId=#{groupId}
+		      	</if>
+		      </where>
+		   ) -->
+		   
+		   
+		   
+	select 
+		a.id AS "id",
+		p.projectid AS "projectid", 
+		a.recomidea AS "recomidea",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.allNum as "allNum",
+		a.num as "num",
+		a.isOK as "result"
+	from  rewproject p
+	left join rewrecomidea a on a.projectId = p.projectId
+	<where>
+	
+		 <if test="groupId != null">
+      		 p.groupId=#{groupId}
+      	 </if>
+      	 
+      	 <if test="currentYear != null and currentYear != ''">
+			and p.currentYear = #{currentYear}
+		 </if>
+	</where>
+
+      	 
+	</select>
+	
+	
+	<select id="selectAllMessByGroup2" parameterType="com.thinkgem.jeesite.modules.sys.entity.User" resultType="com.zkr.rew.zyzz.entity.Rewrecomidea">
+	   
+		select 
+			a.id AS "id",
+			p.projectid AS "projectid", 
+			a.recomidea AS "recomidea",
+			a.create_by AS "createBy.id",
+			a.create_date AS "createDate",
+			a.update_by AS "updateBy.id",
+			a.update_date AS "updateDate",
+			a.allNum as "allNum",
+			a.num as "num",
+			a.isOK as "result"
+		from  rewproject p
+		left join rewrecomidea a on a.projectId = p.projectId
+		<where>
+	      	 <if test="currentYear != null and currentYear != ''">
+				and p.currentYear = #{currentYear}
+			 </if>
+		</where>
+	</select>
+</mapper>

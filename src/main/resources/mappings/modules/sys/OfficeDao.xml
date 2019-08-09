@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.sys.dao.OfficeDao">
+
+	<sql id="officeColumns">
+		a.id,
+		a.name,
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS
+		"updateBy.id",
+		a.update_date,
+		a.del_flag
+	</sql>
+
+
+	<select id="get" resultType="Office">
+		SELECT
+		<include refid="officeColumns" />
+		FROM sys_office a
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Office">
+		SELECT
+		<include refid="officeColumns" />
+		FROM sys_office a
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		ORDER BY a.name
+	</select>
+
+	<select id="findAllList" resultType="Office">
+		SELECT
+		<include refid="officeColumns" />
+		FROM sys_office a
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		ORDER BY a.name
+	</select>
+
+	<insert id="insert">
+		INSERT INTO sys_office(
+		id,
+		name,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{name},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE sys_office SET
+		name = #{name},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+
+
+	<update id="delete">
+		UPDATE sys_office SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<!-- 验证该机构名称是否已经存在 -->
+	<select id="checkOfficeName" resultType="java.lang.Integer" parameterType="java.lang.String">
+		select count(*) as num
+		from sys_office a
+		where a.del_flag = '0'
+		and a.name = #{name}
+	</select>
+
+</mapper>

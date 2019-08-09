@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.csres.dao.RewcsresDao">
+    
+	<select id="selectTdjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.lang.String">
+	   select p.projectId as "projectid",
+	   		  p.currentYear as "currentYear",
+	          IFNULL(t.num,0) AS "num",
+	          p.categoryId as "categoryId",
+	          p.groupId as "groupId",
+	          "特等奖" as "levelName",
+	          p.projectName as "projectname",
+	          p.companyId as "companyId",
+	          p.create_by AS "createBy.id",
+			  p.create_date,
+			  p.update_by AS "updateBy.id",
+			  p.update_date
+	     from rewproject p
+	     join (select s.projectId, count(s.projectId) as num from rewcssenondvote s where s.isAgree0 = '1' GROUP BY s.projectId)t on t.projectId = p.projectId
+	     <where>
+			p.currentYear = #{currentYear}
+			ORDER BY t.num DESC,p.projectName
+	     </where>
+	</select>
+	
+	
+	
+	<select id="selectYdjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.util.Map">
+	
+		select p.projectId as "projectid",
+			   p.currentYear as "currentYear",
+		          IFNULL(t.num,0) AS "num",
+		          p.categoryId as "categoryId",
+		          p.groupId as "groupId",
+		          "一等奖" as "levelName",
+		          p.projectName as "projectname",
+		          p.companyId as "companyId",
+		          p.companyId as "companyId",
+	          	  p.create_by AS "createBy.id",
+			      p.create_date,
+			      p.update_by AS "updateBy.id",
+			      p.update_date
+		 from rewproject p
+		 join (select s.projectId ,sum(s.isAgree0 + s.isAgree1) as num
+					  from rewcssenondvote s  
+					 where (s.isAgree0 = 1 or s.isAgree1 = 1) 
+					 
+					 <if test="!list.isEmpty()">
+						 and  s.projectId not in
+						 <foreach collection="list" item="projectId" index="index"
+				            open="(" close=")" separator=",">
+				            #{projectId}
+				        </foreach>
+			        </if>
+					 GROUP BY s.projectId) t on t.projectId = p.projectId
+		
+		<where>
+			<if test="currentYear != null and currentYear != ''">
+				p.currentYear = #{currentYear}
+			</if>
+			ORDER BY t.num DESC,p.projectName
+		</where>
+		
+	</select>
+	
+	
+	<select id="selectEdjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.util.Map">
+		select    p.projectId as "projectid",
+				  p.currentYear as "currentYear",
+		          IFNULL(t.num,0) AS "num",
+		          p.categoryId as "categoryId",
+		          p.groupId as "groupId",
+		          "二等奖" as "levelName",
+		          p.projectName as "projectname",
+		          p.companyId as "companyId",
+		          p.companyId as "companyId",
+	          	  p.create_by AS "createBy.id",
+			      p.create_date,
+			      p.update_by AS "updateBy.id",
+			      p.update_date
+		 from rewproject p
+		 join (select s.projectId, count(s.projectId) as num 
+		         from rewcsfirstvote s where s.isAgree = '1' 
+		          <if test="!list.isEmpty()">
+						 and  s.projectId not in
+						 <foreach collection="list" item="projectId" index="index"
+				            open="(" close=")" separator=",">
+				            #{projectId}
+				        </foreach>
+			        </if>
+		         
+		         GROUP BY s.projectId) t on t.projectId = p.projectId
+		<where>
+			<if test="currentYear != null and currentYear != ''">
+				p.currentYear = #{currentYear}
+			</if>
+			ORDER BY t.num DESC,p.projectName
+		</where>
+	</select>
+	
+	
+		<select id="selectBsjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.util.Map">
+		select    p.projectId as "projectid",
+				  p.currentYear as "currentYear",
+		          IFNULL(t.num,0) AS "num",
+		          p.categoryId as "categoryId",
+		          p.groupId as "groupId",
+		          "不授奖" as "levelName",
+		          p.projectName as "projectname",
+		          p.companyId as "companyId",
+		          p.companyId as "companyId",
+	          	  p.create_by AS "createBy.id",
+			      p.create_date,
+			      p.update_by AS "updateBy.id",
+			      p.update_date
+		 from rewproject p
+		 join (select s.projectId, count(s.projectId) as num 
+		         from rewcsfirstvote s where s.isAgree = '1' 
+		          <if test="!list.isEmpty()">
+						 and  s.projectId not in
+						 <foreach collection="list" item="projectId" index="index"
+				            open="(" close=")" separator=",">
+				            #{projectId}
+				        </foreach>
+			        </if>
+		         
+		         GROUP BY s.projectId) t on t.projectId = p.projectId
+		<where>
+			<if test="currentYear != null and currentYear != ''">
+				p.currentYear = #{currentYear}
+			</if>
+			ORDER BY t.num DESC,p.projectName
+		</where>
+	</select>
+	
+	
+	
+	<delete id="deleteData" parameterType="java.lang.String">
+		delete from rewcsres where currentYear = #{currentYear}
+	</delete>
+	
+	<insert id="insertData" parameterType="java.util.List">
+		insert into rewcsres (projectId,levelId,allNum,num,currentYear) 
+		
+			values
+		 	<foreach collection="list" item="csres" index="index" separator=",">
+				(#{csres.projectid},#{csres.levelId},#{csres.allNum},#{csres.num},#{csres.currentYear})
+		    </foreach>
+		    
+	</insert>
+	
+	<select id="getListByLevelId" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="com.zkr.rew.csres.entity.RewcsResult">
+		select  p.projectId as "projectid",
+				p.currentYear as "currentYear",
+				p.projectName as "projectname",
+				p.companyId as "companyId",
+				p.categoryId as "categoryId",
+		        p.groupId as "groupId",
+		        a.allNum as "allNum",
+		        a.num as "num",
+		        a.levelId as "levelId",
+		        case a.levelId
+		        when 1 then "特等奖"
+		        when 2 then "一等奖"
+		        when 3 then "二等级"
+		        else "不授奖" end as "levelName"
+		  from rewcsres a join rewproject p on a.projectId = p.projectId
+		 where a.currentYear = #{currentYear} and a.levelId = #{levelId}
+		 order by a.num DESC,p.projectName
+	</select>
+	
+	
+	<!-- 推荐意见是不授奖的 -->
+	<select id="getbsjList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="com.zkr.rew.csres.entity.RewcsResult">
+		select  p.projectId as "projectid",
+				p.currentYear as "currentYear",
+				p.projectName as "projectname",
+				p.companyId as "companyId",
+				p.categoryId as "categoryId",
+		        p.groupId as "groupId",
+		        0 as "num",
+		        a.recomIdea as "levelId",
+				"不授奖" as "levelName"
+		  from rewrecomidea a join rewproject p on a.projectId = p.projectId
+		 where p.currentYear = #{currentYear} and a.recomIdea = '4' and a.isOK="通过"
+		 order by p.projectName
+	</select>
+	
+	<select id="printList" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="com.zkr.rew.csres.entity.RewcsResult">
+		   select 
+		      p.projectId as "projectid",
+	   		  p.currentYear as "currentYear",
+	          IFNULL(t.num,0) AS "num",
+	          p.categoryId as "categoryId",
+	          p.groupId as "groupId",
+	          t.levelId as "levelId",
+	          case t.levelId
+		        when 1 then "特等奖"
+		        when 2 then "一等奖"
+		        when 3 then "二等级"
+		        else "不授奖" end as "levelName",
+			  t.allNum as "allNum",
+	          p.projectName as "projectname",
+	          p.companyId as "companyId",
+	          p.create_by AS "createBy.id",
+			  p.create_date,
+			  p.update_by AS "updateBy.id",
+			  p.update_date
+	     from rewproject p
+	     join rewcsres t on p.projectId = t.projectId
+			where p.currentYear = #{currentYear}
+			<if test="levelId != null and levelId != ''">
+			  and t.levelId = #{levelId}
+			 </if>
+			ORDER BY t.levelId,t.num DESC,p.projectName
+		</select>
+</mapper>

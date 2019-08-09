@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.pszj.dao.RewprojectscopeDao">
+    
+	<sql id="rewprojectscopeColumns">
+		a.id AS "id",
+		p.projectid AS "projectid",
+		p.currentYear as "currentYear",
+		a.kpiweight1 AS "kpiweight1",
+		a.kpiweight2 AS "kpiweight2",
+		a.kpiweight3 AS "kpiweight3",
+		a.kpiweight4 AS "kpiweight4",
+		a.kpiweight5 AS "kpiweight5",
+		(a.KPIWeight1 + a.KPIWeight2 + a.KPIWeight3 + a.KPIWeight4 + a.KPIWeight5) as "kpiweightAll",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate"
+	</sql>
+	
+	<sql id="rewprojectscopeJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.pszj.entity.Rewprojectscope">
+		SELECT 
+			<include refid="rewprojectscopeColumns"/>
+		FROM  rewproject p
+		<include refid="rewprojectscopeJoins"/>
+		left join rewprojectscope a on a.projectId = p.projectId
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 专家评分 List -->
+	<select id="findList" resultType="com.zkr.rew.pszj.entity.Rewprojectscope">
+		SELECT 
+			<include refid="rewprojectscopeColumns"/>
+			,g.groupName as "groupName"
+			,c.categoryName as "categoryName"
+		FROM rewproject p
+		left join rewprojectscope a on a.projectId = p.projectId
+		<if test="!isGlyRole">
+			and a.create_by=#{currentUser.id}
+		</if>
+		left join rewgroup g on g.id = p.groupId
+		left join rewcategory c on c.id = p.categoryId
+		<where>
+		    
+			<if test="projectid != null and projectid != ''">
+				and p.projectId = #{projectid}
+			</if>
+			<if test="!isGlyRole">
+				and p.groupId = #{currentUser.groupId}
+				
+			</if>
+			<if test="currentYear != null and currentYear != ''">
+				and p.currentYear = #{currentYear}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY p.groupId,p.categoryId,p.projectid ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.pszj.entity.Rewprojectscope">
+		SELECT 
+			<include refid="rewprojectscopeColumns"/>
+		FROM rewprojectscope a
+		<include refid="rewprojectscopeJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rewprojectscope(
+			projectid,
+			kpiweight1,
+			kpiweight2,
+			kpiweight3,
+			kpiweight4,
+			kpiweight5,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{projectid},
+			#{kpiweight1},
+			#{kpiweight2},
+			#{kpiweight3},
+			#{kpiweight4},
+			#{kpiweight5},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewprojectscope SET 	
+			projectid = #{projectid},
+			kpiweight1 = #{kpiweight1},
+			kpiweight2 = #{kpiweight2},
+			kpiweight3 = #{kpiweight3},
+			kpiweight4 = #{kpiweight4},
+			kpiweight5 = #{kpiweight5},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewprojectscope
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

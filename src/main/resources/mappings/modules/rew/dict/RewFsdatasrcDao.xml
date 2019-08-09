@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.dict.dao.RewFsdatasrcDao">
+    
+	<sql id="rewFsdatasrcColumns">
+		a.projectid AS "projectid",
+		a.recomidea AS "recomidea",
+		a.sort as "sort",
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.currentyear AS "currentYear"
+	</sql>
+	
+	
+	<sql id="rewFsdatasrcJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.dict.entity.RewFsdatasrc">
+		SELECT 
+			<include refid="rewFsdatasrcColumns"/>
+		FROM rew_fsdatasrc a
+		<include refid="rewFsdatasrcJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getRewFsdatasrcByProjectId" parameterType="com.zkr.rew.dict.entity.RewFsdatasrc" resultType="com.zkr.rew.dict.entity.RewFsdatasrc">
+		SELECT 
+			<include refid="rewFsdatasrcColumns"/>
+		FROM rew_fsdatasrc a
+		where a.projectid = #{projectid}
+		and a.currentyear = #{currentYear}
+		and a.del_flag = #{DEL_FLAG_NORMAL}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.dict.entity.RewFsdatasrc" parameterType="com.zkr.rew.dict.entity.RewFsdatasrc">
+		SELECT 
+			l.levelName as "levelName",
+			p.projectName as "projectName",
+			<include refid="rewFsdatasrcColumns"/>
+		FROM rew_fsdatasrc a
+		join rewproject p on a.projectid = p.projectId
+		join rewawardlevel l on l.id = a.recomidea
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="currentYear != null">
+		    	and a.currentyear = #{currentYear}
+		    </if>
+		    <if test="recomidea != null and recomidea != ''">
+		    	and a.recomidea = #{recomidea}
+		    </if>
+		</where>
+		order by a.sort,a.recomidea ASC
+
+	</select>
+	
+	
+	<select id="findList2" resultType="com.zkr.rew.dict.entity.RewFsdatasrc" parameterType="java.util.Map">
+		SELECT 
+			p.projectName as "projectName",
+			<include refid="rewFsdatasrcColumns"/>
+		FROM rew_fsdatasrc a
+		join rewproject p on a.projectid = p.projectId
+		<where>
+			a.del_flag = '0'
+			and (a.recomidea = '1' or a.recomidea = '2')
+		    and a.currentyear = #{currentYear}
+		   <if test="!list.isEmpty()">
+				 and p.projectId not in
+				 <foreach collection="list" item="t" index="index"
+		            open="(" close=")" separator=",">
+		            #{t.projectid}
+		        </foreach>
+		  </if>
+		</where>
+		order by a.sort,a.recomidea ASC
+	</select>
+	
+	<select id="findList3" resultType="com.zkr.rew.dict.entity.RewFsdatasrc" parameterType="java.util.Map">
+		SELECT 
+			p.projectName as "projectName",
+			<include refid="rewFsdatasrcColumns"/>
+		FROM rew_fsdatasrc a
+		join rewproject p on a.projectid = p.projectId
+		<where>
+			a.del_flag = '0'
+			and (a.recomidea = '1' or a.recomidea = '2' or a.recomidea = '3')
+		    and a.currentyear = #{currentYear}
+		   <if test="!list.isEmpty()">
+				 and p.projectId not in
+				 <foreach collection="list" item="t" index="index"
+		            open="(" close=")" separator=",">
+		            #{t.projectid}
+		        </foreach>
+		  </if>
+		</where>
+		order by a.sort,a.recomidea ASC
+	</select>
+	
+	
+	<select id="findAllList" resultType="com.zkr.rew.dict.entity.RewFsdatasrc">
+		SELECT 
+			<include refid="rewFsdatasrcColumns"/>
+		FROM rew_fsdatasrc a
+		<include refid="rewFsdatasrcJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rew_fsdatasrc(
+			projectid,
+			recomidea,
+			id,
+			sort,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			currentyear
+		) VALUES (
+			#{projectid},
+			#{recomidea},
+			#{id},
+			#{sort},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{currentYear}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rew_fsdatasrc SET 	
+			projectid = #{projectid},
+			recomidea = #{recomidea},
+			sort = #{sort},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			currentyear = #{currentYear}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		delete from rew_fsdatasrc where id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.dict.dao.RewResDao">
+    
+	<sql id="rewResColumns">
+		a.id AS "id",
+		a.csres AS "csres",
+		a.fsres AS "fsres",
+		a.currentyear AS "currentYear",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="rewResJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.dict.entity.RewRes">
+		SELECT 
+			<include refid="rewResColumns"/>
+		FROM rew_res a
+		<include refid="rewResJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.dict.entity.RewRes">
+		SELECT 
+			<include refid="rewResColumns"/>
+		FROM rew_res a
+		<include refid="rewResJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			and a.currentYear = #{currentYear}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.dict.entity.RewRes">
+		SELECT 
+			<include refid="rewResColumns"/>
+		FROM rew_res a
+		<include refid="rewResJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rew_res(
+			id,
+			csres,
+			fsres,
+			currentyear,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{csres},
+			#{fsres},
+			#{currentYear},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rew_res SET 	
+			csres = #{csres},
+			fsres = #{fsres},
+			currentyear = #{currentYear},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE rew_res SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="selectprogerssRes" parameterType="java.lang.String" resultType="com.zkr.rew.dict.entity.RewRes">
+		SELECT 
+			<include refid="rewResColumns"/>
+		FROM rew_res a
+		where a.del_flag = '0'
+		  and a.currentyear = #{currentyear}
+	</select>
+	
+</mapper>

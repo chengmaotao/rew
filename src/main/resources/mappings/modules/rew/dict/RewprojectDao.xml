@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.dict.dao.RewprojectDao">
+    
+	<sql id="rewprojectColumns">
+		a.id AS "id",
+		a.projectid AS "projectid",
+		a.projectname AS "projectname",
+		a.categoryid AS "categoryid",
+    	a.groupId as "groupId",
+    	a.companyId as "companyId"
+    	,a.sblevel as "awardlevel"
+    	,a.currentYear as "currentYear",
+    	a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date
+	</sql>
+	
+	<sql id="rewprojectJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.dict.entity.Rewproject">
+		SELECT 
+			<include refid="rewprojectColumns"/>
+		FROM rewproject a
+		<include refid="rewprojectJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.dict.entity.Rewproject">
+		SELECT 
+			<include refid="rewprojectColumns"/>
+		FROM rewproject a
+		<include refid="rewprojectJoins"/>
+		<where>
+			<if test="groupId != null and groupId != ''">
+				a.groupId = #{groupId}
+			</if>
+			<if test="categoryid != null and categoryid != ''">
+				and a.categoryid = #{categoryid}
+			</if>
+			<if test="companyId != null and companyId != ''">
+				and a.companyId = '#{companyId}'
+			</if>
+			<if test="currentYear != null and currentYear != ''">
+				and a.currentYear = #{currentYear}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			    order by a.groupId,a.categoryid,a.projectid
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.dict.entity.Rewproject">
+		SELECT 
+			<include refid="rewprojectColumns"/>
+		FROM rewproject a
+		<include refid="rewprojectJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rewproject(
+			projectid,
+			projectname,
+			categoryid,
+			groupId,
+			companyId,
+			sblevel,
+			currentYear,
+			create_by,
+			create_date,
+			update_by,
+			update_date
+		) VALUES (
+			#{projectid},
+			#{projectname},
+			#{categoryid},
+			#{groupId},
+			#{companyId},
+			#{awardlevel},
+			#{currentYear},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewproject SET 	
+			projectid = #{projectid},
+			projectname = #{projectname},
+			categoryid = #{categoryid},
+			groupId = #{groupId},
+			companyId = #{companyId},
+			sblevel = #{awardlevel}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewproject
+		WHERE id = #{id}
+	</update>
+	
+	
+	<select id="getProjectByProjectId" resultType="com.zkr.rew.dict.entity.Rewproject" parameterType="com.zkr.rew.dict.entity.Rewproject">
+		SELECT 
+			<include refid="rewprojectColumns"/>
+		FROM rewproject a
+		<include refid="rewprojectJoins"/>
+		WHERE a.projectId = #{projectid}
+		  AND a.currentYear = #{currentYear}
+	</select>
+	
+	
+	<select id="getProjectByProjectName" resultType="com.zkr.rew.dict.entity.Rewproject" parameterType="com.zkr.rew.dict.entity.Rewproject">
+		SELECT 
+			<include refid="rewprojectColumns"/>
+		FROM rewproject a
+		<include refid="rewprojectJoins"/>
+		WHERE a.projectname = #{projectname}
+		  AND a.currentYear = #{currentYear}
+	</select>
+	
+	<select id="findImportTempData" resultType="com.zkr.rew.dict.entity.Rewproject">
+		SELECT 
+			<include refid="rewprojectColumns"/>
+		FROM rewproject a
+		LIMIT 0,1
+	</select>
+	
+	
+	<!--  列出该专业组下的所有项目 -->
+	<select id="findProjectListByGroup" resultType="com.zkr.rew.dict.entity.Rewproject" parameterType="com.thinkgem.jeesite.modules.sys.entity.User">
+		SELECT 
+			<include refid="rewprojectColumns"/>
+		FROM rewproject a
+	   WHERE a.groupId = #{groupId}
+	   <if test="currentYear != null and currentYear != ''">
+			and a.currentYear = #{currentYear}
+	  </if>
+	   order by a.groupId,a.categoryId,a.projectid
+	</select>
+	
+	
+	<select id="findProjectListNotInparametes" resultType="com.zkr.rew.dict.entity.Rewproject" parameterType="java.lang.String">
+	
+		<!--  
+		SELECT 
+			<include refid="rewprojectColumns"/>
+		FROM rewproject a
+		left join rewcsres cs on cs.projectId = a.projectId
+		where (cs.levelId != '1' or cs.levelId is null)
+		and a.currentYear = #{currentYear}
+		-->
+		
+		SELECT 
+			<include refid="rewprojectColumns"/>
+		FROM rewproject a
+		join rewrecomidea c on a.projectId = c.projectId
+		 and c.recomIdea != '4'
+		left join rewcsres cs on cs.projectId = a.projectId
+		where (cs.levelId != '1' or cs.levelId is null)
+		and a.currentYear = #{currentYear}
+		
+	</select>
+	
+	<select id="getProjectInfoByProjectId" resultType="com.zkr.rew.dict.entity.Rewproject" parameterType="com.zkr.rew.dict.entity.Rewproject">
+		select
+			   a.projectName as "projectname",
+			   g.groupName as "groupName",
+		       r.categoryName as "categoryName"
+	      FROM rewproject a
+	           join rewgroup g on a.groupId = g.id
+	           join rewcategory r on r.id = a.categoryId
+	           
+	      where a.projectId = #{projectid}
+	        and a.currentYear = #{currentYear}
+	         
+	</select>
+	
+	
+	<select id="selectZszjProjectList" resultType="com.zkr.rew.dict.entity.Rewproject" parameterType="com.zkr.rew.dict.entity.Rewproject">
+		select 
+				a.id AS "id",
+				a.projectid AS "projectid",
+				a.projectname AS "projectname",
+				a.categoryid AS "categoryid",
+		    	a.groupId as "groupId",
+		    	a.companyId as "companyId",
+		    	a.sblevel as "awardlevel"
+		  from rewproject a
+		 <where>
+		 
+			  <if test="groupId != null and groupId !=''">
+			  	a.groupId = #{groupId}
+			  </if>
+			  <if test="currentYear != null and currentYear != ''">
+				and a.currentYear = #{currentYear}
+			 </if>
+			 	 and not exists(select 1 from rew_zszj_project b where b.projectid = a.projectid)
+		 </where>
+		 order by a.projectname
+	</select>
+</mapper>

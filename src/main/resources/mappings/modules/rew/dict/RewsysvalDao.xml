@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.dict.dao.RewsysvalDao">
+    
+	<sql id="rewsysvalColumns">
+		a.id,
+		a.csdyltp AS "csdyltp",
+		a.csdeltpt AS "csdeltpt",
+		a.csdeltpy AS "csdeltpy",
+		a.fsdyltp AS "fsdyltp",
+		a.fsdeltp AS "fsdeltp",
+		a.fsdsltp AS "fsdsltp",
+		a.currentyear AS "currentYear"
+	</sql>
+	
+	<sql id="rewsysvalJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.dict.entity.Rewsysval">
+		SELECT 
+			<include refid="rewsysvalColumns"/>
+		FROM rewsysval a
+		<include refid="rewsysvalJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.dict.entity.Rewsysval">
+		SELECT 
+			<include refid="rewsysvalColumns"/>
+		FROM rewsysval a
+		<include refid="rewsysvalJoins"/>
+		<where>
+			a.currentyear = #{currentYear}
+		</where>
+		order by a.currentyear
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.dict.entity.Rewsysval">
+		SELECT 
+			<include refid="rewsysvalColumns"/>
+		FROM rewsysval a
+		<include refid="rewsysvalJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rewsysval(
+			id,
+			csdyltp,
+			csdeltpt,
+			csdeltpy,
+			fsdyltp,
+			fsdeltp,
+			fsdsltp,
+			currentyear,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{csdyltp},
+			#{csdeltpt},
+			#{csdeltpy},
+			#{fsdyltp},
+			#{fsdeltp},
+			#{fsdsltp},
+			#{currentYear},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewsysval SET 	
+			csdyltp = #{csdyltp},
+			csdeltpt = #{csdeltpt},
+			csdeltpy = #{csdeltpy},
+			fsdyltp = #{fsdyltp},
+			fsdeltp = #{fsdeltp},
+			fsdsltp = #{fsdsltp},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewsysval
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

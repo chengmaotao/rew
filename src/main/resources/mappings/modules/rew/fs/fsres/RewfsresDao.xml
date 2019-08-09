@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.fs.dao.fsres.RewfsresDao">
+    
+	<sql id="rewfsresColumns">
+		a.id AS "id",
+		a.projectid AS "projectid",
+		a.levelid AS "levelid",
+		a.allnum AS "allnum",
+		a.num AS "num"
+	</sql>
+	
+	<sql id="rewfsresJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.fs.entity.fsres.Rewfsres">
+		SELECT 
+			<include refid="rewfsresColumns"/>
+		FROM rewfsres a
+		<include refid="rewfsresJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.fs.entity.fsres.Rewfsres">
+		SELECT 
+			<include refid="rewfsresColumns"/>
+		FROM rewfsres a
+		<include refid="rewfsresJoins"/>
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.fs.entity.fsres.Rewfsres">
+		SELECT 
+			<include refid="rewfsresColumns"/>
+		FROM rewfsres a
+		<include refid="rewfsresJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+<!-- 	<insert id="insert">
+		INSERT INTO rewfsres(
+			projectid,
+			levelid,
+			allnum,
+			num
+		) VALUES (
+			#{projectid},
+			#{levelid},
+			#{allnum},
+			#{num}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewfsres SET 	
+			projectid = #{projectid},
+			levelid = #{levelid},
+			allnum = #{allnum},
+			num = #{num}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewfsres
+		WHERE id = #{id}
+	</update> -->
+	
+	
+	
+	
+	
+	
+	
+	<!--   特等奖 插入数据库 *********************************** -->
+	<delete id="deleteData" parameterType="java.lang.String">
+		DELETE FROM rewfsdylres where currentYear = #{currentYear}
+	</delete>
+	
+	<insert id="insertData" parameterType="java.util.List">
+		insert into rewfsdylres (projectId,levelId,allNum,num,currentYear) 
+		
+			values
+		 	<foreach collection="list" item="csres" index="index" separator=",">
+				(#{csres.projectid},#{csres.levelId},#{csres.allNum},#{csres.num},#{csres.currentYear})
+		    </foreach>
+	</insert>
+	
+	
+		<!--   一等奖 插入数据库 *********************************** -->
+	<delete id="deleteData2" parameterType="java.lang.String">
+		DELETE FROM rewfsdelres where currentYear = #{currentYear}
+	</delete>
+	
+	<insert id="insertData2" parameterType="java.util.List">
+		insert into rewfsdelres (projectId,levelId,allNum,num,currentYear) 
+		
+			values
+		 	<foreach collection="list" item="csres" index="index" separator=",">
+				(#{csres.projectid},#{csres.levelId},#{csres.allNum},#{csres.num},#{csres.currentYear})
+		    </foreach>
+	</insert>
+	
+	<!--   二等奖 插入数据库 *********************************** -->
+	<delete id="deleteData3" parameterType="java.lang.String">
+		DELETE FROM rewfsdslres where currentYear = #{currentYear}
+	</delete>
+	
+	<insert id="insertData3" parameterType="java.util.List">
+		insert into rewfsdslres (projectId,levelId,allNum,num,currentYear) 
+		
+			values
+		 	<foreach collection="list" item="csres" index="index" separator=",">
+				(#{csres.projectid},#{csres.levelId},#{csres.allNum},#{csres.num},#{csres.currentYear})
+		    </foreach>
+	</insert>
+	
+	<!-- 复审第一轮结果 -->
+	<select id="getFsDylTpResult" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.lang.String">
+		select
+			  p.projectId as "projectid",
+	          IFNULL(a.num,0) AS "num",
+	          p.categoryId as "categoryId",
+	          p.groupId as "groupId",
+	          "特等奖" as "levelName",
+	          p.projectName as "projectname",
+	          p.companyId as "companyId",
+	          a.allNum as "allNum",
+	          a.levelId as "levelId"
+		from rewfsdylres a
+		join rewproject p on a.projectId = p.projectId
+		where p.currentYear = #{currentYear}
+	</select>
+	
+	<!-- 复审第二轮结果 -->
+	<select id="getFsDelTpResult" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.lang.String">
+		select
+			  p.projectId as "projectid",
+	          IFNULL(a.num,0) AS "num",
+	          p.categoryId as "categoryId",
+	          p.groupId as "groupId",
+	          "一等奖" as "levelName",
+	          p.projectName as "projectname",
+	          p.companyId as "companyId",
+	          a.allNum as "allNum",
+	          a.levelId as "levelId"
+		from rewfsdelres a
+		join rewproject p on a.projectId = p.projectId
+		where p.currentYear = #{currentYear}
+	</select>
+	
+	<!-- 复审第三轮结果 -->
+	<select id="getFsDslTpResult" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.lang.String">
+		select
+			  p.projectId as "projectid",
+	          IFNULL(a.num,0) AS "num",
+	          p.categoryId as "categoryId",
+	          p.groupId as "groupId",
+	          "二等奖" as "levelName",
+	          p.projectName as "projectname",
+	          p.companyId as "companyId",
+	          a.allNum as "allNum",
+	          a.levelId as "levelId"
+		from rewfsdslres a
+		join rewproject p on a.projectId = p.projectId
+		where p.currentYear = #{currentYear}
+	</select>
+	
+	
+	
+	
+	<!-- 复审结果 -->
+	
+	<select id="selectFsres" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.lang.String">
+	
+	   select ll.projectid
+	          ,ll.num
+	          ,ll.categoryId
+	          ,ll.groupId
+	          ,ll.levelName
+	          ,ll.projectname
+	          ,ll.companyId
+	          ,ll.allNum
+	          ,ll.levelId
+	     from(
+				select
+					  p.projectId as "projectid",
+			          IFNULL(a.num,0) AS "num",
+			          p.categoryId as "categoryId",
+			          p.groupId as "groupId",
+			          "特等奖" as "levelName",
+			          p.projectName as "projectname",
+			          p.companyId as "companyId",
+			          a.allNum as "allNum",
+			          a.levelId as "levelId"
+				from rewfsdylres a
+				join rewproject p on a.projectId = p.projectId
+				where p.currentYear = #{currentYear}
+				union
+				
+				select
+					  p.projectId as "projectid",
+			          IFNULL(a.num,0) AS "num",
+			          p.categoryId as "categoryId",
+			          p.groupId as "groupId",
+			          "一等奖" as "levelName",
+			          p.projectName as "projectname",
+			          p.companyId as "companyId",
+			          a.allNum as "allNum",
+			          a.levelId as "levelId"
+				from rewfsdelres a
+				join rewproject p on a.projectId = p.projectId
+				where p.currentYear = #{currentYear}
+				union
+				
+				select
+					  p.projectId as "projectid",
+			          IFNULL(a.num,0) AS "num",
+			          p.categoryId as "categoryId",
+			          p.groupId as "groupId",
+			          "二等奖" as "levelName",
+			          p.projectName as "projectname",
+			          p.companyId as "companyId",
+			          a.allNum as "allNum",
+			          a.levelId as "levelId"
+				from rewfsdslres a
+				join rewproject p on a.projectId = p.projectId
+				where p.currentYear = #{currentYear}
+			)ll order by ll.levelId,ll.num DESC,ll.projectname
+	</select>
+	
+	<!-- 复审第一轮 补投时， 计算已经投票数目时 会用到  20161208-->
+	<select id="selectFsdyltpres" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.lang.String">
+		SELECT 
+			<include refid="rewfsresColumns"/>
+		FROM rewfsdylres a
+	   WHERE a.currentYear = #{currentYear}
+	</select>
+	
+		<!-- 复审第二轮 补投时， 计算已经投票数目时 会用到 20161208-->
+	<select id="selectFsdeltpres" resultType="com.zkr.rew.csres.entity.RewcsResult" parameterType="java.lang.String">
+		SELECT 
+			<include refid="rewfsresColumns"/>
+		FROM rewfsdelres a
+	   WHERE a.currentYear = #{currentYear}
+	</select>
+</mapper>

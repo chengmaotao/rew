@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.dict.dao.RewgroupDao">
+    
+	<sql id="rewgroupColumns">
+		a.id AS "id",
+		a.groupname AS "groupname",
+		a.reviewscope AS "reviewscope",
+		a.isenable as "isenable",
+		a.currentYear as "currentYear"
+	</sql>
+	
+	<sql id="rewgroupJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.dict.entity.Rewgroup">
+		SELECT 
+			<include refid="rewgroupColumns"/>
+		FROM rewgroup a
+		<include refid="rewgroupJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.dict.entity.Rewgroup">
+		SELECT 
+			<include refid="rewgroupColumns"/>
+		FROM rewgroup a
+		<include refid="rewgroupJoins"/>
+		<where>
+			<if test="currentYear != null and currentYear != ''">
+				a.currentYear = #{currentYear}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.groupname
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.dict.entity.Rewgroup">
+		SELECT 
+			<include refid="rewgroupColumns"/>
+		FROM rewgroup a
+		<include refid="rewgroupJoins"/>
+		<where>
+			a.isenable = '1'
+			<if test="currentYear != null and currentYear != ''">
+				and	a.currentYear = #{currentYear}
+			</if>
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.groupname
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rewgroup(
+		    id,
+			groupname,
+			reviewscope,
+			isenable,
+			currentYear
+		) VALUES (
+		    #{id},
+			#{groupname},
+			#{reviewscope},
+			#{isenable},
+			#{currentYear}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewgroup SET 	
+			groupname = #{groupname},
+			reviewscope = #{reviewscope},
+			isenable = #{isenable},
+			currentYear = #{currentYear}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewgroup
+		WHERE id = #{id}
+	</update>
+	
+	<insert id="isertMenuEnable" parameterType="com.zkr.rew.dict.entity.Rewgroup">
+		insert into rewsyscontrol(id,name,enable,groupId,sort,currentYear) 
+	    select a.id,a.name,'0',#{id},a.sort,#{currentYear} from sys_menu a where a.del_flag = '0' and a.is_show='1' and a.href != '' and a.href is not null and a.href not like '%init%' and a.parent_id = '1' order by sort
+	</insert>
+	
+	<delete id="deleteMenuEnableByGroup" parameterType="com.zkr.rew.dict.entity.Rewgroup">
+		delete from rewsyscontrol where groupId = #{id}
+	</delete>
+	
+<!-- 		<delete id="deleteGroupSonByGroup" parameterType="com.zkr.rew.dict.entity.Rewgroup">
+		delete from rewgroupson where parentGroupId = #{id}
+	</delete> -->
+</mapper>

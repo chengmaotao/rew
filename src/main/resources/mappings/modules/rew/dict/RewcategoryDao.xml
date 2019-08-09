@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkr.rew.dict.dao.RewcategoryDao">
+    
+	<sql id="rewcategoryColumns">
+		a.id AS "id",
+		a.categoryname AS "categoryname"
+	</sql>
+	
+	<sql id="rewcategoryJoins">
+	</sql>
+    
+	<select id="get" resultType="com.zkr.rew.dict.entity.Rewcategory">
+		SELECT 
+			<include refid="rewcategoryColumns"/>
+		FROM rewcategory a
+		<include refid="rewcategoryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="com.zkr.rew.dict.entity.Rewcategory">
+		SELECT 
+			<include refid="rewcategoryColumns"/>
+		FROM rewcategory a
+		<include refid="rewcategoryJoins"/>
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="com.zkr.rew.dict.entity.Rewcategory">
+		SELECT 
+			<include refid="rewcategoryColumns"/>
+		FROM rewcategory a
+		<include refid="rewcategoryJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rewcategory(
+			categoryname
+		) VALUES (
+			#{categoryname}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rewcategory SET 	
+			categoryname = #{categoryname}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM rewcategory
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
