@@ -122,7 +122,7 @@ public class LoginController extends BaseController{
 			}
 		}
 		
-		// 成茂涛  当前用户是否是管理员
+		//  当前用户是否是管理员
 		model.addAttribute("isGyly", UtilsMessage.isGlyRole());
 		
 		// 初审  复审 是否显示

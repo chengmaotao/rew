@@ -50,8 +50,12 @@
 			</if>
 			<if test="!isGlyRole">
 				and p.groupId = #{currentUser.groupId}
-				
 			</if>
+
+			<if test="isGlyRole">
+				and (a.create_by != '' and a.create_by is not null )
+			</if>
+
 			<if test="currentYear != null and currentYear != ''">
 				and p.currentYear = #{currentYear}
 			</if>

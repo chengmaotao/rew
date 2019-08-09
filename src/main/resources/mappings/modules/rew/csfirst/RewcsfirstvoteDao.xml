@@ -59,12 +59,10 @@
 			<if test="currentYear != null and currentYear != ''">
 				and p.currentYear = #{currentYear}
 			</if>
-			<if test="isAgreeKey == 1">
-				and a.isAgree = '1'
+			<if test="isGlyRole">
+				and a.isAgree=1
 			</if>
-			<if test="isAgreeKey != '' and isAgreeKey == 0">
-				and (a.isAgree is null or a.isAgree = '0')
-			</if>
+
 		</where>
 		<choose>
 			<when test="page !=null and page.orderBy != null and page.orderBy != ''">

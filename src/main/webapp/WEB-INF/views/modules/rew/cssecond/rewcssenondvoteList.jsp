@@ -78,7 +78,7 @@
 		<ul class="ul-form">
 		<c:if test="${isShow }">
 			<li><label>项目名称：</label> 
-     			<form:select path="projectid" class="input-xlarge2" >
+     			<form:select path="projectid" >
         			<form:option value="" label="请选择"/>
         			<form:options items="${projects }" itemLabel="projectname" itemValue="projectid" htmlEscape="false"/>
      			</form:select>
@@ -87,17 +87,7 @@
 			</c:if>
 		    <li><label>专业组：</label> 
 				<form:radiobuttons path="groupId" items="${groupList}" itemLabel="groupname" itemValue="id" htmlEscape="false" onclick="submitFormByGroup()"/>
-				<%--
-			    <span><input type="radio" id="radionAllId" name="groupId" value="" onclick="submitFormByGroup()"><label for="radionAllId">所有组</label></span>
-			    --%>
 		    </li>
-		    
-		    <c:if test="${isShow }">
-		    <li><label>同意：</label> 
-				<form:radiobuttons path="isAgreeKey" items="${isAgree}" itemLabel="value" itemValue="key" htmlEscape="false" onclick="submitFormByGroup()"/>
-		    </li>			
-			<li class="clearfix"></li>
-			</c:if>
 		</ul>
 	</form:form>
 	<%--<sys:message content="${message}"/>

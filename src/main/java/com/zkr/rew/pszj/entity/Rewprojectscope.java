@@ -17,7 +17,7 @@ public class Rewprojectscope extends DataEntity<Rewprojectscope> {
 
 	private static final long serialVersionUID = 1L;
 	private String projectid; // projectid
-	private String kpiweight1; // kpiweight1
+	private String kpiweight1; // kpiweight1hidGroupId
 	private String kpiweight2; // kpiweight2
 	private String kpiweight3; // kpiweight3
 	private String kpiweight4; // kpiweight4
@@ -28,7 +28,6 @@ public class Rewprojectscope extends DataEntity<Rewprojectscope> {
 	private String groupName;
 	private String groupSonName;
 	private String categoryName;
-	
 
 	public String getKpiweightAll() {
 		return kpiweightAll;

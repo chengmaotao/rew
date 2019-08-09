@@ -53,7 +53,7 @@
     	<form:form id="searchForm" modelAttribute="rewfsdyl" action="${ctx}/fs/fsdyl/initrewfsdyl/list" method="post" class="breadcrumb form-search">
     		<ul class="ul-form">
 	    		<li><label>项目名称：</label> 
-	     			<form:select path="projectid" class="input-xlarge2" >
+	     			<form:select path="projectid" >
 	        			<form:option value="" label="请选择"/>
 	        			<form:options items="${projects }" itemLabel="projectName" itemValue="projectid" htmlEscape="false"/>
 	     			</form:select>

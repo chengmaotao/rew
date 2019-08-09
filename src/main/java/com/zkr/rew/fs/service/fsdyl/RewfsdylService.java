@@ -104,8 +104,11 @@ public class RewfsdylService extends CrudService<RewfsdylDao, Rewfsdyl> {
 						dao.insert(e);
 					}
 				} else {
-					if("0".equals(e.getIsAgree())){
+					if(!"1".equals(e.getIsAgree())){
 						dao.delete(e);
+					}else{
+						e.preUpdate();
+						dao.update(e);
 					}
 				}
 			}
@@ -200,8 +203,11 @@ public class RewfsdylService extends CrudService<RewfsdylDao, Rewfsdyl> {
 						fsdylDao.insert2(e);
 					}
 				} else {
-					if("0".equals(e.getIsAgree())){
-						dao.delete2(e);
+					if(!"1".equals(e.getIsAgree())){
+						fsdylDao.delete2(e);
+					}else{
+						e.preUpdate();;
+						fsdylDao.update2(e);
 					}
 				}
 			}
@@ -245,8 +251,11 @@ public class RewfsdylService extends CrudService<RewfsdylDao, Rewfsdyl> {
 						fsdylDao.insert3(e);
 					}
 				} else {
-					if("0".equals(e.getIsAgree())){
+					if(!"1".equals(e.getIsAgree())){
 						fsdylDao.delete3(e);
+					}else {
+						e.preUpdate();
+						fsdylDao.update3(e);
 					}
 				}
 			}

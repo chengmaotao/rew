@@ -124,23 +124,8 @@
 				return false;
 			});
 			// 初始化点击第一个一级菜单
-			//$("#menu a.menu:first span").click();
-			
-			// 用户管理
-			
-			if(${isGyly}){
-				$("#menu a.menu:first span").click();
-			}else{
-			 	if(document.getElementById("e85140975ade477989127f9ae4a77fb7")){
-					// 评审专家
-					$("#e85140975ade477989127f9ae4a77fb7").click(); //成茂涛
-				}else if(document.getElementById("1bf8d6ed096d405e890ac6e7e45f210b")){
-					$("#1bf8d6ed096d405e890ac6e7e45f210b").click(); //复审第一轮投票
-				}else{
-					$("#menu a.menu:first span").click();
-				}
-			}
-			
+			$("#menu a.menu:first span").click();
+
 			// <c:if test="${tabmode eq '1'}"> 下拉菜单以选项卡方式打开
 			$("#userInfo .dropdown-menu a").mouseup(function(){
 				return addTab($(this), true);
@@ -186,10 +171,6 @@
 				<ul id="userControl" class="nav pull-right">
 					<li id="userInfo" class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" title="个人信息">您好, ${fns:getUser().name}&nbsp;<i class="icon-chevron-down"></i></a>
-						<%--<ul class="dropdown-menu">
-							<li><a href="${ctx}/sys/user/info" target="mainFrame"><i class="icon-user"></i>&nbsp; 个人信息</a></li>
-							<li><a href="${ctx}/sys/user/modifyPwd" target="mainFrame"><i class="icon-lock"></i>&nbsp;  修改密码</a></li>
-						</ul>--%>
 					</li>
 					<li><a href="${ctx}/logout" title="退出登录">退出</a></li>
 					<li>&nbsp;</li>

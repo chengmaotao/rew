@@ -178,6 +178,11 @@
 			<if test="currentYear != null and currentYear != ''">
 				and p.currentYear = #{currentYear}
 			</if>
+
+			<if test="groupId != null and groupId != ''">
+				and p.groupId = #{groupId}
+			</if>
+
 		</where>
 		<choose>
 			<when test="page !=null and page.orderBy != null and page.orderBy != ''">

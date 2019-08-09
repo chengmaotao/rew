@@ -64,20 +64,20 @@ public class RewcsfirstvoteService extends CrudService<RewcsfirstvoteDao, Rewcsf
 			for(int i = 0; i < csfirstvotes.size(); i++){
 				csfirstvote = csfirstvotes.get(i);
 				
-				if(csfirstvote.getRecomIdea() == null || "".equals(csfirstvote.getRecomIdea())){
+				if( !"1".equals(csfirstvote.getIsagree()) && csfirstvote.getIsNewRecord()){
 					continue;
 				}
-				
 				if (csfirstvote.getIsNewRecord()){
-					
 					if("1".equals(csfirstvote.getIsagree())){
 						csfirstvote.preInsert();
 						dao.insert(csfirstvote);
 					}
 				}else{
-					
-					if("0".equals(csfirstvote.getIsagree())){						
+					if(!"1".equals(csfirstvote.getIsagree())){
 						dao.delete(csfirstvote);
+					}else{
+						csfirstvote.preUpdate();
+						dao.update(csfirstvote);
 					}
 				}
 			}

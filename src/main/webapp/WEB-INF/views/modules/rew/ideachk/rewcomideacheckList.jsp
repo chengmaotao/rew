@@ -55,14 +55,14 @@
 <c:if test="${iscs }">
 
 	<c:choose>
-		<c:when test="isShow">
+		<c:when test="${isShow }">
 			<form:form id="searchForm" modelAttribute="rewcomideacheck" action="${ctx}/ideachk/rewcomideacheck/" method="post" class="breadcrumb form-search">
 				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 				<ul class="ul-form">
 					
 					<li><label>项目名称：</label> 
-		     			<form:select path="projectid" class="input-xlarge2" >
+		     			<form:select path="projectid" >
 		        			<form:option value="" label="请选择"/>
 		        			<form:options items="${projects }" itemLabel="projectname" itemValue="projectid" htmlEscape="false"/>
 		     			</form:select>

@@ -52,7 +52,9 @@
 				ORDER BY ${page.orderBy}
 			</when>
 			<otherwise>
-			    order by a.groupId,a.categoryid,a.projectid
+
+				<!-- order by a.groupId,a.categoryid,a.projectid -->
+				order by a.projectName
 			</otherwise>
 		</choose>
 	</select>
@@ -155,21 +157,12 @@
 	   <if test="currentYear != null and currentYear != ''">
 			and a.currentYear = #{currentYear}
 	  </if>
-	   order by a.groupId,a.categoryId,a.projectid
+		<!-- order by a.groupId,a.categoryId,a.projectid -->
+		order by a.projectName
 	</select>
 	
 	
 	<select id="findProjectListNotInparametes" resultType="com.zkr.rew.dict.entity.Rewproject" parameterType="java.lang.String">
-	
-		<!--  
-		SELECT 
-			<include refid="rewprojectColumns"/>
-		FROM rewproject a
-		left join rewcsres cs on cs.projectId = a.projectId
-		where (cs.levelId != '1' or cs.levelId is null)
-		and a.currentYear = #{currentYear}
-		-->
-		
 		SELECT 
 			<include refid="rewprojectColumns"/>
 		FROM rewproject a
@@ -178,7 +171,7 @@
 		left join rewcsres cs on cs.projectId = a.projectId
 		where (cs.levelId != '1' or cs.levelId is null)
 		and a.currentYear = #{currentYear}
-		
+		order by a.projectName
 	</select>
 	
 	<select id="getProjectInfoByProjectId" resultType="com.zkr.rew.dict.entity.Rewproject" parameterType="com.zkr.rew.dict.entity.Rewproject">

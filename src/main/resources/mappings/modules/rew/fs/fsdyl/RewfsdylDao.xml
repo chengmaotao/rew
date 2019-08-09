@@ -36,7 +36,12 @@
 		<if test="projectid != null and projectid != ''">
 			and p.projectId = #{projectid}
 		</if>
-		 order by r.sort,p.groupId,p.projectName
+
+		<if test="isGlyRole">
+			and (a.create_by!= '' and a.create_by is not null)
+		</if>
+
+		order by r.sort,p.groupId,p.projectName
 	</select>
 	
 
@@ -81,14 +86,19 @@
 		<if test="projectid != null and projectid != ''">
 			and p.projectId = #{projectid}
 		</if>
-		
-	  <if test="!list.isEmpty()">
-		 and p.projectId not in 
-		 <foreach collection="list" item="t" index="index"
-            open="(" close=")" separator=",">
-            #{t.projectid}
-        </foreach>
-	 </if>
+
+		<if test="!list.isEmpty()">
+			and p.projectId not in
+			<foreach collection="list" item="t" index="index"
+					 open="(" close=")" separator=",">
+				#{t.projectid}
+			</foreach>
+		</if>
+
+		<if test="isGlyRole">
+			and (a.create_by!= '' and a.create_by is not null)
+		</if>
+
 	 order by r.sort
 	</select>
 	
@@ -403,6 +413,11 @@
 		<if test="projectid != null and projectid != ''">
 			and p.projectId = #{projectid}
 		</if>
+
+		<if test="isGlyRole">
+			and (a.create_by!= '' and a.create_by is not null)
+		</if>
+
 		<if test="!list.isEmpty()">
 			 and r.projectId not in
 			 <foreach collection="list" item="t" index="index"
@@ -496,7 +511,12 @@
 	            open="(" close=")" separator=",">
 	            #{t.projectid}
 	        </foreach>
-		</if>  
+		</if>
+
+		<if test="isGlyRole">
+			and (a.create_by!= '' and a.create_by is not null)
+		</if>
+
 		<!-- order by r.sort,p.groupId, p.projectName -->	
 		order by p.groupId, p.projectName	
 	</select>

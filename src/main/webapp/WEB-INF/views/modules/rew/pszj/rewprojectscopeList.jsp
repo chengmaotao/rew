@@ -20,6 +20,7 @@
 			$("#searchForm").submit();
         	return false;
         }
+
 	</script>
 </head>
 <body>
@@ -32,11 +33,12 @@
 				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 				<ul class="ul-form">
 					 <li><label>项目名称：</label> 
-					 	<form:select path="projectid" class="input-xlarge2" >
+					 	<form:select path="projectid" >
 		         	   	 	<form:option value="" label="请选择"/>
 		               	 	<form:options items="${projects }" itemLabel="projectname" itemValue="projectid" htmlEscape="false"/>
 		        		</form:select>
 		        	</li>
+
 					<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
 					<li class="clearfix"></li>
 				</ul>

@@ -3,11 +3,13 @@
  */
 package com.zkr.rew.zyzz.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.zkr.rew.dict.entity.Rewgroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -166,8 +168,20 @@ public class RewrecomideaController extends BaseController {
 		
 		// e85140975ade477989127f9ae4a77fb7  菜单[推荐意见投票结果]的id
 		Dmlb dmlb = new Dmlb("f63023288d5a477a82e3292450493997", user.getGroupId(), null);
-		
-		//model.addAttribute("projects", UtilsFns.getProjects(""));
+
+		List<Rewgroup> groupList2 = UtilsFns.getEnableGroupList();
+
+		List<Rewgroup> groupList = new ArrayList<Rewgroup>(groupList2);
+
+		Rewgroup r = new Rewgroup();
+		r.setGroupname("所有");
+		r.setId("");
+		groupList.add(r);
+
+		//检索区域
+		model.addAttribute("groupList",groupList);
+
+		model.addAttribute("isShow", UtilsMessage.isGlyRole());
 		
 		model.addAttribute("iscs", UtilsMessage.iscs());
 		// 推荐意见投票结果  可用
@@ -188,7 +202,7 @@ public class RewrecomideaController extends BaseController {
 			
 			// 推荐意见投票结果列表
 			initCommonResult(rewrecomidea,request,response,model);
-			model.addAttribute("isShow", (UtilsMessage.isGlyRole() && UtilsMessage.iscs()));
+			//model.addAttribute("isShow", (UtilsMessage.isGlyRole() && UtilsMessage.iscs()));
 			return "modules/rew/ideachk/checkResultList";
 		}else{
 		   //不可用

@@ -5,6 +5,7 @@ package com.zkr.rew.ideachk.service;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,14 +73,18 @@ public class RewcomideacheckService extends CrudService<RewcomideacheckDao, Rewc
 
 						//comideaCheck.setCurrentYear(UtilsFns.selectCurrentYear());
 						
-						if("0".equals(comideaCheck.getIsagree()) && comideaCheck.getIsNewRecord()){
+						if((!"1".equals(comideaCheck.getIsagree())) && comideaCheck.getIsNewRecord()){
 							continue;
 						}
 						
 						if (comideaCheck.getIsNewRecord()){
 							comideaCheck.preInsert();
 							dao.insert(comideaCheck);
-						}else{
+						}else if(!"1".equals(comideaCheck.getIsagree())){
+							//comideaCheck.preUpdate();
+							//dao.update(comideaCheck);
+							dao.delete(comideaCheck);
+						}else {
 							comideaCheck.preUpdate();
 							dao.update(comideaCheck);
 						}

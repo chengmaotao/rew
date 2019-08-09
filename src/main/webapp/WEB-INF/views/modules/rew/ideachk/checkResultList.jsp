@@ -20,13 +20,31 @@
 			$("#searchForm").submit();
         	return false;
         }
+
+        function submitFormByGroup(){
+
+            $("#searchForm").submit();
+            return false;
+        }
+
 	</script>
 </head>
 <body>
 <c:if test="${iscs }">
-	<form:form id="searchForm" modelAttribute="rewscopekpi" action="${ctx}/zyzz/rewrecomidea/result" method="post" class="">
+	<form:form id="searchForm" modelAttribute="rewrecomidea" action="${ctx}/zyzz/rewrecomidea/result" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+
+		<c:if test="${isShow }">
+			<ul class="ul-form">
+
+				<li><label>专业组：</label>
+					<form:radiobuttons path="groupId" items="${groupList}" itemLabel="groupname" itemValue="id" htmlEscape="false" onclick="submitFormByGroup()"/>
+				</li>
+
+			</ul>
+		</c:if>
+
 	</form:form>
 	<sys:message content="${message}"/>
 	

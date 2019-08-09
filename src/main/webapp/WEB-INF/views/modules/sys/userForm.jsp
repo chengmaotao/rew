@@ -44,14 +44,14 @@
 			<label class="control-label">专业组:</label>
 			<div class="controls">
                 <form:radiobuttons path="groupId" items="${groupList}" itemLabel="groupname" itemValue="id" htmlEscape="false" cssClass="required"/>
-				<span class="help-inline"><font color="red">*</font> </span>
+				<span class="help-inline" style="color: red">* </span>
 			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label">姓名:</label>
 			<div class="controls">
 				<form:input path="name" htmlEscape="false" maxlength="50" class="required"/>
-				<span class="help-inline"><font color="red">*</font> </span>
+				<span class="help-inline" style="color: red">* </span>
 			</div>
 		</div>
 		
@@ -62,7 +62,7 @@
 					<div class="controls">
 						<input id="oldLoginName" name="oldLoginName" type="hidden" value="${user.loginName}">
 						<form:input path="loginName" htmlEscape="false" maxlength="50" class="required userName" readonly="true"/>
-						<span class="help-inline"><font color="red">*</font> </span>
+						<span class="help-inline" style="color: red">* </span>
 					</div>
 				</div>			
 			</c:when>
@@ -72,7 +72,7 @@
 					<div class="controls">
 						<input id="oldLoginName" name="oldLoginName" type="hidden" value="${user.loginName}">
 						<form:input path="loginName" htmlEscape="false" maxlength="50" class="required userName"/>
-						<span class="help-inline"><font color="red">*</font> </span>
+						<span class="help-inline" style="color: red">* </span>
 					</div>
 				</div>
 			</c:otherwise>
@@ -82,7 +82,7 @@
 			<label class="control-label">密码:</label>
 			<div class="controls">
 				<input id="newPassword" name="newPassword" type="password" value="" maxlength="50" minlength="3" class="${empty user.id?'required':''}"/>
-				<c:if test="${empty user.id}"><span class="help-inline"><font color="red">*</font> </span></c:if>
+				<c:if test="${empty user.id}"><span class="help-inline" style="color: red">* </span></c:if>
 				<c:if test="${not empty user.id}"><span class="help-inline">若不修改密码，请留空。</span></c:if>
 			</div>
 		</div>
@@ -90,7 +90,7 @@
 			<label class="control-label">确认密码:</label>
 			<div class="controls">
 				<input id="confirmNewPassword" name="confirmNewPassword" type="password" value="" maxlength="50" minlength="3" equalTo="#newPassword"/>
-				<c:if test="${empty user.id}"><span class="help-inline"><font color="red">*</font> </span></c:if>
+				<c:if test="${empty user.id}"><span class="help-inline" style="color: red">* </span></c:if>
 			</div>
 		</div>
 		
@@ -101,7 +101,7 @@
 				<form:select path="iscs">
 					<form:options items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
-				<span class="help-inline"><font color="red">*</font></span>
+				<span class="help-inline" style="color: red">*</span>
 			</div>
 		</div>
 		
@@ -111,7 +111,7 @@
 				<form:select path="isfs">
 					<form:options items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
-				<span class="help-inline"><font color="red">*</font> </span>
+				<span class="help-inline" style="color: red">* </span>
 			</div>
 		</div>
 		<div class="control-group">
@@ -119,7 +119,7 @@
 			<div class="controls">
 			    <form:radiobuttons path="roleIdList" items="${allRoles}" itemLabel="name" itemValue="id" htmlEscape="false" cssClass="required"/>
 				<%--<form:checkboxes path="roleIdList" items="${allRoles}" itemLabel="name" itemValue="id" htmlEscape="false" class="required"/>
-				--%><span class="help-inline"><font color="red">*</font> </span>
+				--%><span class="help-inline" style="color: red">* </span>
 			</div>
 		</div>
 		<div class="control-group">

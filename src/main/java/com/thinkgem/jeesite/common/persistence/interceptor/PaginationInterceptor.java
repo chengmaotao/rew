@@ -77,7 +77,6 @@ public class PaginationInterceptor extends BaseInterceptor {
                 MappedStatement newMs = copyFromMappedStatement(mappedStatement, new BoundSqlSqlSource(newBoundSql));
 
                 invocation.getArgs()[0] = newMs;
-                log.debug("王雪：" + newBoundSql.getSql());
             }
 //        }
         return invocation.proceed();

@@ -70,9 +70,6 @@ public class PreparePaginationInterceptor extends BaseInterceptor {
                 if (boundSql.getSql() == null || "".equals(boundSql.getSql())){
                     return null;
                 }
-/*                log.debug("成茂涛---------------------------");
-                log.debug(boundSql.getSql());
-                log.debug("常文莉---------------------------");*/
             }
 //        }
         return ivk.proceed();

@@ -76,13 +76,13 @@ public class RewcssenondvoteService extends CrudService<RewcssenondvoteDao, Rewc
 			for(int i = 0; i < cssenondvotes.size(); i++){
 				cssenondvote = cssenondvotes.get(i);
 				if (cssenondvote.getIsNewRecord()){
-					if("0".equals(cssenondvote.getIsagree0()) && "0".equals(cssenondvote.getIsagree1())){
+					if(!"1".equals(cssenondvote.getIsagree0()) && !"1".equals(cssenondvote.getIsagree1())){
 						continue;
 					}
 					cssenondvote.preInsert();
 					dao.insert(cssenondvote);
 				}else{
-					if("0".equals(cssenondvote.getIsagree0()) && "0".equals(cssenondvote.getIsagree1())){
+					if(!"1".equals(cssenondvote.getIsagree0()) && !"1".equals(cssenondvote.getIsagree1())){
 						dao.delete(cssenondvote);
 					}else{
 						cssenondvote.preUpdate();

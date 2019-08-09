@@ -87,7 +87,7 @@ public class RewcomideacheckController extends BaseController {
 			}
 			// 推荐意见列表
 			initCommonList(rewcomideacheck,request,response,model);
-			model.addAttribute("isShow", UtilsMessage.isGlyRole());
+			/*model.addAttribute("isShow", UtilsMessage.isGlyRole());*/
 			
 			// 服务器端生成的 token
 			String token = IdGen.uuid();
