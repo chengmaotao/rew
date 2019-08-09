@@ -1,0 +1,51 @@
+/*公共样式*/
+body,h2,p{
+	margin: 0;
+	padding: 0;
+}
+body{
+	font-family: '微软雅黑','黑体',Arial; font-size: 1.5em;
+	color: #333;
+}
+.left{
+	float:left;
+}
+.right{
+	float:right;
+}
+.clear{
+	clear: both;
+}
+
+/*登录页面样式*/
+#container{
+	width: 40%;
+	margin: 0 auto;
+	margin-top: 180px;
+	padding-bottom: 40px;
+	text-align: center;
+}
+#container input{
+	width: 185px;
+	height: 35px;
+	border: 1px solid #A9A9A9;
+	margin-left: 20px;
+	margin-bottom: 20px;
+	font-family: '微软雅黑','黑体',Arial; font-size: 0.7em;
+	color: #333;
+	padding-left: 10px;
+}
+#container form h2{
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+#container #btn{
+	width: 150px;
+	font-weight: bold;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	background-color: #3274c2;
+	margin-left: 40px;
+	padding-right: 10px;
+}

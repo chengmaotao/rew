@@ -1,0 +1,41 @@
+body{text-align: center;font-size: 18px;} .container{width:650px;text-align: left;margin:0 auto;margin-bottom: 100px;}
+h1{margin-top: 50px;font-size: 27px;color:#666;}
+.container h3{font-weight: normal; margin-bottom: 10px; margin-left: 20px;color:#666;}
+.container table{width:650px;border:1px solid #666;border-right-width:2px;}
+.container table td{border-bottom: 1px solid #666;border-right: 1px solid #666;}
+.container table td.left{text-align: center;width: 100px;height: 40px;}
+.container table td.left_last{height: 600px;}
+.container table td>div.right_last{vertical-align: top;font-size: 16px;}
+.container table td>div.right_last>p{margin: 3px 0 0 8px;font-size:17px;}
+.container table td>div.right_last>div{position: absolute;width: 300px;height: 100px;right: 0;bottom: 0;}
+.container table td>div.right_last>div>p{margin-left: 160px;margin-top: 25px;}
+.container table td{height:40px;}
+.container table #suggest{vertical-align:top;position: relative;border-right:none;}
+.container table td>div.grade{height: 40px;border-bottom:1px solid #666;}
+.container table td>div.grade>p{width:90px;height:40px;line-height: 40px;padding-left: 10px;float:left;border-right:1px solid #666;margin:0;}
+.container table td>div.grade>p.first{font-weight: bold;width:90px;}
+.container table td>div.grade>p>span{float: left;margin-top: 2px;}
+.container table td>div.grade>p>b{display: inline-block;border: 1px solid #666;width: 25px;height: 30px;margin-left: 10px;margin-top: 4px;}
+.container table td>div.grade input{width: 25px;height:25px;margin-top:8px;margin-left: 10px;}
+.container>p{float: right;margin:5px 20px 0 0;font-size: 14px;}
+
+/*
+body{text-align: center;font-size: 18px;} .container{width:650px;text-align: left;margin:0 auto;margin-bottom: 100px;}
+h1{margin-top: 50px;font-size: 27px;color:#666;}
+.container h3{font-weight: normal; margin-bottom: 10px; margin-left: 20px;color:#666;}
+.container table{width:650px;border-top: 1px solid #666;border-left:1px solid #666;}
+.container table td{border-bottom: 1px solid #666;border-right: 1px solid #666;}
+.container table td.left{text-align: center;width: 100px;height: 40px;}
+.container table td.left_last{height: 600px;}
+.container table td.right_last{vertical-align: top;position: relative;font-size: 16px;}
+.container table td.right_last>p{margin: 3px 0 0 8px;font-size:17px;}
+.container table td.right_last>div{position: absolute;width: 300px;height: 100px;right: 0;bottom: 0;}
+.container table td.right_last>div>p{margin-left: 160px;margin-top: 25px;}
+.container table td.grade{height: 40px;}
+.container table td.grade>p{width:90px;height:40px;line-height: 40px;padding-left: 10px;float:left;border-right:1px solid #666;margin:0;}
+.container table td.grade>p.first{font-weight: bold;width:90px;}
+.container table td.grade>p>span{float: left;margin-top: 2px;}
+.container table td.grade>p>b{display: inline-block;border: 1px solid #666;width: 25px;height: 30px;margin-left: 10px;margin-top: 4px;}
+.container table td.grade input{width: 25px;height:25px;margin-top:8px;margin-left: 10px;}
+.container>p{float: right;margin:5px 20px 0 0;font-size: 14px;}
+*/
